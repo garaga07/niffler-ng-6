@@ -16,6 +16,12 @@ import java.lang.annotation.Target;
 public @interface User {
     String username() default "";
 
+    int friends() default 0;  // Количество друзей
+
+    int incomeInvitations() default 0;  // Количество входящих приглашений
+
+    int outcomeInvitations() default 0;  // Количество исходящих приглашений
+
     Category[] categories() default {};
 
     Spending[] spendings() default {};

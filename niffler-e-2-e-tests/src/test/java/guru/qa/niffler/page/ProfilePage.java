@@ -23,7 +23,7 @@ public class ProfilePage {
                 .filter(text(categoryName))  // Фильтруем по тексту категории
                 .first()  // Берём первый элемент, который соответствует фильтру
                 .parent().$(".MuiIconButton-sizeMedium[aria-label='Archive category']");
-        archiveButtonInRow.click();  // Кликаем по кнопке архивирования
+        archiveButtonInRow.shouldBe(visible).click();  // Кликаем по кнопке архивирования
         return this;
     }
 
@@ -33,7 +33,7 @@ public class ProfilePage {
                 .filter(text(categoryName))  // Фильтруем по тексту категории
                 .first()  // Берём первый элемент, который соответствует фильтру
                 .parent().$("[data-testid='UnarchiveOutlinedIcon']");
-        unarchiveButtonInRow.click();  // Кликаем по кнопке разархивирования
+        unarchiveButtonInRow.shouldBe(visible).click();  // Кликаем по кнопке разархивирования
         return this;
     }
 
