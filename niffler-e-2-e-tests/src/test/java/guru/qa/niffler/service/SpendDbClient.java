@@ -8,8 +8,11 @@ import guru.qa.niffler.data.repository.impl.SpendRepositoryJdbc;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
+import io.qameta.allure.Step;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
 public class SpendDbClient implements SpendClient {
 
     private static final Config CFG = Config.getInstance();
@@ -21,6 +24,7 @@ public class SpendDbClient implements SpendClient {
     );
 
     @Override
+    @Step("Создание новой траты")
     public SpendJson createSpend(SpendJson spend) {
         return xaTransactionTemplate.execute(() -> SpendJson.fromEntity(
                         spendRepository.create(SpendEntity.fromJson(spend))
@@ -29,6 +33,7 @@ public class SpendDbClient implements SpendClient {
     }
 
     @Override
+    @Step("Создание новой категории")
     public CategoryJson createCategory(CategoryJson category) {
         return xaTransactionTemplate.execute(() -> CategoryJson.fromEntity(
                         spendRepository.createCategory(CategoryEntity.fromJson(category))
@@ -37,6 +42,7 @@ public class SpendDbClient implements SpendClient {
     }
 
     @Override
+    @Step("Удаление категории")
     public void removeCategory(CategoryJson category) {
         xaTransactionTemplate.execute(() -> {
             spendRepository.removeCategory(CategoryEntity.fromJson(category));

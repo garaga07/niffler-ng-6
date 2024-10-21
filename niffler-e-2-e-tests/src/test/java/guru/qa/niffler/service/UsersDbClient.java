@@ -12,16 +12,18 @@ import guru.qa.niffler.data.repository.impl.UserdataUserRepositoryJdbc;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
+import io.qameta.allure.Step;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
-
+@ParametersAreNonnullByDefault
 public class UsersDbClient implements UsersClient {
 
     private static final Config CFG = Config.getInstance();
@@ -36,6 +38,7 @@ public class UsersDbClient implements UsersClient {
     );
 
     @Override
+    @Step("Создание нового пользователя: {username}")
     public UserJson createUser(String username, String password) {
         return xaTransactionTemplate.execute(() -> UserJson.fromEntity(
                         createNewUser(username, password),
@@ -45,6 +48,7 @@ public class UsersDbClient implements UsersClient {
     }
 
     @Override
+    @Step("Добавление {count} входящих приглашений пользователю: {targetUser.username}")
     public List<String> addIncomeInvitation(UserJson targetUser, int count) {
         List<String> incomes = new ArrayList<>();
         if (count > 0) {
@@ -62,6 +66,7 @@ public class UsersDbClient implements UsersClient {
     }
 
     @Override
+    @Step("Добавление {count} исходящих приглашений пользователю: {targetUser.username}")
     public List<String> addOutcomeInvitation(UserJson targetUser, int count) {
         List<String> outcomes = new ArrayList<>();
         if (count > 0) {
@@ -79,6 +84,7 @@ public class UsersDbClient implements UsersClient {
     }
 
     @Override
+    @Step("Добавление {count} друзей пользователю: {targetUser.username}")
     public List<String> addFriend(UserJson targetUser, int count) {
         List<String> friends = new ArrayList<>();
         if (count > 0) {
