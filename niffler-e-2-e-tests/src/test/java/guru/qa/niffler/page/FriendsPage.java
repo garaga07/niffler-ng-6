@@ -14,6 +14,7 @@ public class FriendsPage {
     private final ElementsCollection friendsRows = $$x("//tbody[@id='friends']/tr");
     private final ElementsCollection requestsRows = $$x("//tbody[@id='requests']/tr");
     private final ElementsCollection allPeopleRows = $$("tbody#all tr");
+    private final SelenideElement searchInput = $("input[type='text']");
 
     // Проверка отображения заголовка таблицы друзей
     public FriendsPage shouldHaveMyFriendsListHeader(String expectedHeaderText) {
@@ -23,11 +24,13 @@ public class FriendsPage {
 
     // Проверка, что запись с именем отображается в таблице запросов
     public void shouldBePresentInRequestsTable(String friendName) {
+        searchFriend(friendName);
         requestsRows.findBy(text(friendName)).shouldBe(visible);
     }
 
     // Проверка, что запись с именем отображается в таблице друзей
     public void shouldBePresentInFriendsTable(String friendName) {
+        searchFriend(friendName);
         friendsRows.findBy(text(friendName)).shouldBe(visible);
     }
 
@@ -44,7 +47,12 @@ public class FriendsPage {
 
     // Проверка, что запись с именем и соответствующим статусом отображается в таблице "all people"
     public FriendsPage shouldBePresentInAllPeopleTableAndCheckStatus(String name, String status) {
+        searchFriend(name);
         allPeopleRows.findBy(text(name)).$("span").shouldHave(text(status)).shouldBe(visible);
         return this;
+    }
+
+    public void searchFriend(String friendName) {
+        searchInput.setValue(friendName).pressEnter();
     }
 }
