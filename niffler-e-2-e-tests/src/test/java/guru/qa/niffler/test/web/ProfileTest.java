@@ -20,7 +20,8 @@ public class ProfileTest {
             )
     )
     @Test
-    void archivedCategoryShouldNotPresentInCategoriesList(CategoryJson category) throws InterruptedException {
+    void archivedCategoryShouldNotPresentInCategoriesList(CategoryJson[] categories) throws InterruptedException {
+        CategoryJson category = categories[0];
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login("duck", "12345")
                 .goToProfile()
@@ -37,7 +38,8 @@ public class ProfileTest {
             )
     )
     @Test
-    void activeCategoryShouldPresentInCategoriesList(CategoryJson category) throws InterruptedException {
+    void activeCategoryShouldPresentInCategoriesList(CategoryJson[] categories) throws InterruptedException {
+        CategoryJson category = categories[0];
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login("duck", "12345")
                 .goToProfile()

@@ -6,14 +6,11 @@ import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.service.UsersClient;
 import guru.qa.niffler.service.UsersDbClient;
 import guru.qa.niffler.utils.RandomDataUtils;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserExtension implements BeforeEachCallback, ParameterResolver {
 
@@ -29,13 +26,32 @@ public class UserExtension implements BeforeEachCallback, ParameterResolver {
                     if ("".equals(userAnno.username())) {
                         final String username = RandomDataUtils.randomUsername();
                         UserJson testUser = usersClient.createUser(username, defaultPassword);
+                        // Добавление друзей и приглашений с проверкой на количество
+                        List<String> friends = new ArrayList<>();
+                        List<String> incomeInvites = new ArrayList<>();
+                        List<String> outcomeInvites = new ArrayList<>();
+
+                        if (userAnno.friends() > 0) {
+                            friends = usersClient.addFriend(testUser, userAnno.friends());
+                        }
+                        if (userAnno.incomeInvitations() > 0) {
+                            incomeInvites = usersClient.addIncomeInvitation(testUser, userAnno.incomeInvitations());
+                        }
+                        if (userAnno.outcomeInvitations() > 0) {
+                            outcomeInvites = usersClient.addOutcomeInvitation(testUser, userAnno.outcomeInvitations());
+                        }
+
+                        // Сохранение пользователя и данных в контексте
                         context.getStore(NAMESPACE).put(
                                 context.getUniqueId(),
                                 testUser.addTestData(
                                         new TestData(
                                                 defaultPassword,
-                                                new ArrayList<>(),
-                                                new ArrayList<>()
+                                                new ArrayList<>(), // Пустой список для категорий
+                                                new ArrayList<>(), // Пустой список для трат
+                                                friends,           // Список друзей
+                                                incomeInvites,     // Список входящих приглашений
+                                                outcomeInvites     // Список исходящих приглашений
                                         )
                                 )
                         );
