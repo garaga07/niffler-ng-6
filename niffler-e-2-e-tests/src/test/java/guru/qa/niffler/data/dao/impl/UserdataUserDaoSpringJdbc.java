@@ -1,7 +1,7 @@
 package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.data.dao.UdUserDao;
+import guru.qa.niffler.data.dao.UserdataUserDao;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.jdbc.DataSources;
 import guru.qa.niffler.data.mapper.UserdataUserEntityRowMapper;
@@ -12,6 +12,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -19,11 +20,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class UdUserDaoSpringJdbc implements UdUserDao {
+@ParametersAreNonnullByDefault
+public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
 
     private static final Config CFG = Config.getInstance();
     private final String url = CFG.userdataJdbcUrl();
 
+    @Nonnull
     @Override
     public UserEntity create(UserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
@@ -31,9 +34,9 @@ public class UdUserDaoSpringJdbc implements UdUserDao {
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(
                     """
-                            INSERT INTO "user" (username, currency, firstname, surname, photo, photo_small, full_name)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
-                            """,
+                        INSERT INTO "user" (username, currency, firstname, surname, photo, photo_small, full_name)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """,
                     Statement.RETURN_GENERATED_KEYS
             );
             ps.setString(1, user.getUsername());
@@ -51,18 +54,19 @@ public class UdUserDaoSpringJdbc implements UdUserDao {
         return user;
     }
 
+    @Nonnull
     @Override
     public UserEntity update(UserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         jdbcTemplate.update("""
-                                      UPDATE "user"
-                                        SET currency    = ?,
-                                            firstname   = ?,
-                                            surname     = ?,
-                                            photo       = ?,
-                                            photo_small = ?
-                                        WHERE id = ?
-                        """,
+                          UPDATE "user"
+                            SET currency    = ?,
+                                firstname   = ?,
+                                surname     = ?,
+                                photo       = ?,
+                                photo_small = ?
+                            WHERE id = ?
+            """,
                 user.getCurrency().name(),
                 user.getFirstname(),
                 user.getSurname(),
@@ -71,11 +75,11 @@ public class UdUserDaoSpringJdbc implements UdUserDao {
                 user.getId());
 
         jdbcTemplate.batchUpdate("""
-                                         INSERT INTO friendship (requester_id, addressee_id, status)
-                                         VALUES (?, ?, ?)
-                                         ON CONFLICT (requester_id, addressee_id)
-                                             DO UPDATE SET status = ?
-                        """,
+                             INSERT INTO friendship (requester_id, addressee_id, status)
+                             VALUES (?, ?, ?)
+                             ON CONFLICT (requester_id, addressee_id)
+                                 DO UPDATE SET status = ?
+            """,
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(@Nonnull PreparedStatement ps, int i) throws SQLException {
@@ -93,6 +97,7 @@ public class UdUserDaoSpringJdbc implements UdUserDao {
         return user;
     }
 
+    @Nonnull
     @Override
     public Optional<UserEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
@@ -100,8 +105,8 @@ public class UdUserDaoSpringJdbc implements UdUserDao {
             return Optional.ofNullable(
                     jdbcTemplate.queryForObject(
                             """
-                                       SELECT * FROM "user" WHERE id = ?
-                                    """,
+                                   SELECT * FROM "user" WHERE id = ?
+                                """,
                             UserdataUserEntityRowMapper.instance,
                             id
                     )
@@ -112,6 +117,7 @@ public class UdUserDaoSpringJdbc implements UdUserDao {
         }
     }
 
+    @Nonnull
     @Override
     public Optional<UserEntity> findByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
@@ -119,8 +125,8 @@ public class UdUserDaoSpringJdbc implements UdUserDao {
             return Optional.ofNullable(
                     jdbcTemplate.queryForObject(
                             """
-                                       SELECT * FROM "user" WHERE username = ?
-                                    """,
+                                   SELECT * FROM "user" WHERE username = ?
+                                """,
                             UserdataUserEntityRowMapper.instance,
                             username
                     )
@@ -130,13 +136,14 @@ public class UdUserDaoSpringJdbc implements UdUserDao {
         }
     }
 
+    @Nonnull
     @Override
     public List<UserEntity> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         return jdbcTemplate.query(
                 """
-                            SELECT * FROM "user"
-                        """,
+                        SELECT * FROM "user"
+                    """,
                 UserdataUserEntityRowMapper.instance
         );
     }

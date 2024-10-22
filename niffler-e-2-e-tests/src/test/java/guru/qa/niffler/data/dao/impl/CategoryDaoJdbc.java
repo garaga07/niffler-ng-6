@@ -5,6 +5,8 @@ import guru.qa.niffler.data.dao.CategoryDao;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.mapper.CategoryEntityRowMapper;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,18 +18,21 @@ import java.util.UUID;
 
 import static guru.qa.niffler.data.jdbc.Connections.holder;
 
+@ParametersAreNonnullByDefault
 public class CategoryDaoJdbc implements CategoryDao {
 
     private static final Config CFG = Config.getInstance();
     private final String url = CFG.spendJdbcUrl();
 
+    @SuppressWarnings("resource")
+    @Nonnull
     @Override
     public CategoryEntity create(CategoryEntity category) {
         try (PreparedStatement ps = holder(url).connection().prepareStatement(
                 """
-                            INSERT INTO category (username, name, archived) 
-                            VALUES (?, ?, ?)
-                        """,
+                        INSERT INTO category (username, name, archived) 
+                        VALUES (?, ?, ?)
+                    """,
                 Statement.RETURN_GENERATED_KEYS
         )) {
             ps.setString(1, category.getUsername());
@@ -51,6 +56,8 @@ public class CategoryDaoJdbc implements CategoryDao {
         }
     }
 
+    @SuppressWarnings("resource")
+    @Nonnull
     @Override
     public Optional<CategoryEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(url).connection().prepareStatement(
@@ -72,6 +79,8 @@ public class CategoryDaoJdbc implements CategoryDao {
         }
     }
 
+    @SuppressWarnings("resource")
+    @Nonnull
     @Override
     public List<CategoryEntity> findAll() {
         try (PreparedStatement ps = holder(url).connection().prepareStatement(
@@ -91,15 +100,17 @@ public class CategoryDaoJdbc implements CategoryDao {
         }
     }
 
+    @SuppressWarnings("resource")
+    @Nonnull
     @Override
     public CategoryEntity update(CategoryEntity category) {
         try (PreparedStatement ps = holder(url).connection().prepareStatement(
                 """
-                          UPDATE "category"
-                            SET name     = ?,
-                                archived = ?
-                            WHERE id = ?
-                        """);
+                      UPDATE "category"
+                        SET name     = ?,
+                            archived = ?
+                        WHERE id = ?
+                    """);
         ) {
             ps.setString(1, category.getName());
             ps.setBoolean(2, category.isArchived());

@@ -1,36 +1,33 @@
 package guru.qa.niffler.api;
 
-import guru.qa.niffler.config.Config;
+import guru.qa.niffler.api.core.RestClient;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
-import guru.qa.niffler.service.SpendClient;
-import io.qameta.allure.Step;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ParametersAreNonnullByDefault
-public class SpendApiClient implements SpendClient {
+public class SpendApiClient extends RestClient {
 
-    private final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(Config.getInstance().spendUrl())
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build();
+    private final SpendApi spendApi;
 
-    private final SpendApi spendApi = retrofit.create(SpendApi.class);
+    public SpendApiClient() {
+        super(CFG.spendUrl());
+        this.spendApi = retrofit.create(SpendApi.class);
+    }
 
-    @Step("Создание новой траты")
-    public @Nullable SpendJson createSpend(SpendJson spend) {
+    @Nullable
+    public SpendJson createSpend(SpendJson spend) {
         final Response<SpendJson> response;
         try {
             response = spendApi.addSpend(spend)
@@ -42,8 +39,8 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    @Step("Редактирование траты")
-    public @Nullable SpendJson editSpend(SpendJson spend) {
+    @Nullable
+    public SpendJson editSpend(SpendJson spend) {
         final Response<SpendJson> response;
         try {
             response = spendApi.editSpend(spend)
@@ -55,8 +52,8 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    @Step("Получение траты")
-    public @Nullable SpendJson getSpend(String id) {
+    @Nullable
+    public SpendJson getSpend(String id) {
         final Response<SpendJson> response;
         try {
             response = spendApi.getSpend(id)
@@ -68,7 +65,7 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    @Step("Получение всех трат пользователя: {username}")
+    @Nonnull
     public List<SpendJson> allSpends(String username,
                                      @Nullable CurrencyValues currency,
                                      @Nullable String from,
@@ -81,11 +78,12 @@ public class SpendApiClient implements SpendClient {
             throw new AssertionError(e);
         }
         assertEquals(200, response.code());
-        return response.body();
+        return response.body() != null
+                ? response.body()
+                : Collections.emptyList();
     }
 
-    @Step("Удаление траты")
-    public void removeSpends(@Nonnull String username, @Nonnull String... ids) {
+    public void removeSpends(String username, String... ids) {
         final Response<Void> response;
         try {
             response = spendApi.removeSpends(username, Arrays.stream(ids).toList())
@@ -96,8 +94,8 @@ public class SpendApiClient implements SpendClient {
         assertEquals(200, response.code());
     }
 
-    @Step("Создание новой категории")
-    public @Nullable CategoryJson createCategory(CategoryJson category) {
+    @Nullable
+    public CategoryJson createCategory(CategoryJson category) {
         final Response<CategoryJson> response;
         try {
             response = spendApi.addCategory(category)
@@ -109,14 +107,8 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    @Override
-    @Step("Удаление категории")
-    public void removeCategory(CategoryJson category) {
-        throw new UnsupportedOperationException("Category deletion is not supported with API");
-    }
-
-    @Step("Обновление категории")
-    public @Nullable CategoryJson updateCategory(CategoryJson category) {
+    @Nullable
+    public CategoryJson updateCategory(CategoryJson category) {
         final Response<CategoryJson> response;
         try {
             response = spendApi.updateCategory(category)
@@ -128,7 +120,7 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    @Step("Получение всех категорий пользователя: {username}")
+    @Nonnull
     public List<CategoryJson> allCategory(String username) {
         final Response<List<CategoryJson>> response;
         try {
@@ -138,6 +130,8 @@ public class SpendApiClient implements SpendClient {
             throw new AssertionError(e);
         }
         assertEquals(200, response.code());
-        return response.body();
+        return response.body() != null
+                ? response.body()
+                : Collections.emptyList();
     }
 }

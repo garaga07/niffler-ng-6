@@ -5,8 +5,11 @@ import guru.qa.niffler.page.component.Calendar;
 import io.qameta.allure.Step;
 import lombok.Getter;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import static com.codeborne.selenide.Selenide.$;
 
+@ParametersAreNonnullByDefault
 public class EditSpendingPage {
 
     private final SelenideElement descriptionInput = $("#description");
@@ -15,8 +18,9 @@ public class EditSpendingPage {
     private final SelenideElement categoryInput = $("#category");
 
     @Getter
-    private final Calendar calendar = new Calendar();
+    private final Calendar calendar = new Calendar($("input[name='date']"));
 
+    @Nonnull
     @Step("Установить новое описание траты: {description}")
     public EditSpendingPage setNewSpendingDescription(String description) {
         descriptionInput.clear();

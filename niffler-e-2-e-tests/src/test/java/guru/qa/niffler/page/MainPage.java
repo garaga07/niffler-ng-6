@@ -7,11 +7,15 @@ import guru.qa.niffler.page.component.SpendingTable;
 import io.qameta.allure.Step;
 import lombok.Getter;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$x;
 
+@ParametersAreNonnullByDefault
 public class MainPage {
     private final ElementsCollection tableRows = $("#spendings tbody").$$("tr");
     private final SelenideElement statisticsHeader = $x("//h2[text()='Statistics']");
@@ -22,6 +26,7 @@ public class MainPage {
     @Getter
     private final SpendingTable spendingTable = new SpendingTable();
 
+    @Nonnull
     @Step("Редактировать трату с описанием: {spendingDescription}")
     public EditSpendingPage editSpending(String spendingDescription) {
         searchSpend(spendingDescription);
@@ -35,6 +40,7 @@ public class MainPage {
         tableRows.find(text(spendingDescription)).should(visible);
     }
 
+    @Nonnull
     @Step("Проверить, что заголовок статистики содержит текст: {value}")
     public MainPage checkStatisticsHeaderContainsText(String value) {
         statisticsHeader.shouldHave(text(value)).shouldBe(visible);

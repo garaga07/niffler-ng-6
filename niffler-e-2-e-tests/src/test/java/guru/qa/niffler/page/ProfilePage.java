@@ -3,11 +3,16 @@ package guru.qa.niffler.page;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.Calendar;
 import io.qameta.allure.Step;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 
+@ParametersAreNonnullByDefault
 public class ProfilePage {
     private final SelenideElement archiveButtonSubmit = $x("//button[text()='Archive']");
     private final SelenideElement unarchiveButtonSubmit = $x("//button[text()='Unarchive']");
@@ -19,6 +24,7 @@ public class ProfilePage {
     private final SelenideElement showArchiveCategoryButton = $x("//input[@type='checkbox']");
     private final SelenideElement nameInput = $("#name");
 
+
     @Step("Архивировать категорию с названием: {categoryName}")
     public ProfilePage clickArchiveButtonForCategoryName(String categoryName) {
         SelenideElement archiveButtonInRow = categoryList
@@ -29,6 +35,7 @@ public class ProfilePage {
         return this;
     }
 
+    @Nonnull
     @Step("Разархивировать категорию с названием: {categoryName}")
     public ProfilePage clickUnarchiveButtonForCategoryName(String categoryName) {
         SelenideElement unarchiveButtonInRow = categoryList
@@ -39,6 +46,7 @@ public class ProfilePage {
         return this;
     }
 
+    @Nonnull
     @Step("Нажать кнопку для показа архивных категорий")
     public ProfilePage clickShowArchiveCategoryButton() {
         Selenide.executeJavaScript("arguments[0].scrollIntoView(true);", showArchiveCategoryButton);
@@ -46,18 +54,21 @@ public class ProfilePage {
         return this;
     }
 
+    @Nonnull
     @Step("Подтвердить архивирование категории")
     public ProfilePage clickArchiveButtonSubmit() {
         archiveButtonSubmit.click();
         return this;
     }
 
+    @Nonnull
     @Step("Подтвердить разархивирование категории")
     public ProfilePage clickUnarchiveButtonSubmit() {
         unarchiveButtonSubmit.click();
         return this;
     }
 
+    @Nonnull
     @Step("Проверить успешное сообщение об архивировании категории: {value}")
     public ProfilePage shouldBeVisibleArchiveSuccessMessage(String value) {
         successArchiveMessage.shouldHave(text("Category " + value + " is archived")).shouldBe(visible);
@@ -71,17 +82,16 @@ public class ProfilePage {
     }
 
     @Step("Проверить, что активная категория с названием: {value} видна")
-    public ProfilePage shouldVisibleActiveCategory(String value) {
+    public void shouldVisibleActiveCategory(String value) {
         categoryList.findBy(text(value)).shouldBe(visible);
-        return this;
     }
 
     @Step("Проверить, что архивная категория с названием: {value} не видна")
-    public ProfilePage shouldNotVisibleArchiveCategory(String value) {
+    public void shouldNotVisibleArchiveCategory(String value) {
         categoryList.findBy(text(value)).shouldNotBe(visible);
-        return this;
     }
 
+    @Nonnull
     @Step("Ввести имя: {name}")
     public ProfilePage setName(String name) {
         nameInput.clear();
@@ -89,12 +99,14 @@ public class ProfilePage {
         return this;
     }
 
+    @Nonnull
     @Step("Нажать кнопку сохранить изменения")
     public ProfilePage clickSaveButton() {
         saveButton.click();
         return this;
     }
 
+    @Nonnull
     @Step("Проверить успешное сообщение об обновлении профиля")
     public ProfilePage shouldBeVisibleSaveChangesSuccessMessage() {
         successSaveChangesMessage.shouldHave(text("Profile successfully updated")).shouldBe(visible);

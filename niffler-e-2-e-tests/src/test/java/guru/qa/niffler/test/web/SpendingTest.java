@@ -7,6 +7,7 @@ import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.page.EditSpendingPage;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import org.junit.jupiter.api.Test;

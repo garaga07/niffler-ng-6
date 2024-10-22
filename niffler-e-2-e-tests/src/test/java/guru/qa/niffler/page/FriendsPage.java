@@ -4,11 +4,15 @@ import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.*;
 
+@ParametersAreNonnullByDefault
 public class FriendsPage {
     private final SelenideElement emptyFriends = $x("//p[text()='There are no users yet']");
     private final SelenideElement myFriendsListHeader = $x("//h2[text()='My friends']");
@@ -23,6 +27,7 @@ public class FriendsPage {
             $(".MuiPaper-root button.MuiButtonBase-root.MuiButton-containedPrimary");
     private final SelenideElement unfriendButton = $("button[class*='MuiButton-containedSecondary']");
 
+    @Nonnull
     @Step("Проверка отображения заголовка списка друзей")
     public FriendsPage shouldHaveMyFriendsListHeader(String expectedHeaderText) {
         myFriendsListHeader.shouldHave(text(expectedHeaderText)).shouldBe(visible);
@@ -46,6 +51,7 @@ public class FriendsPage {
         emptyFriends.shouldHave(text(message)).shouldBe(visible);
     }
 
+    @Nonnull
     @Step("Проверка отображения заголовка списка запросов")
     public FriendsPage shouldFriendRequestList(String expectedHeaderText) {
         friendsRequestListHeader.shouldHave(text(expectedHeaderText)).shouldBe(visible);
@@ -63,12 +69,14 @@ public class FriendsPage {
         searchInput.setValue(friendName).pressEnter();
     }
 
+    @Nonnull
     @Step("Принять заявку в друзья")
     public FriendsPage acceptFriend() {
         acceptButton.click();
         return this;
     }
 
+    @Nonnull
     @Step("Отклонить заявку в друзья")
     public FriendsPage declineFriend() {
         declineButton.click();
