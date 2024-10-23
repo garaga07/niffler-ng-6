@@ -36,6 +36,7 @@ public class UserApiClient implements UsersClient {
             .build();
     private final AuthApi authApi = authRetrofit.create(AuthApi.class);
 
+    @Step("Получение текущего пользователя по имени: {username}")
     public @Nullable UserJson getCurrentUser(@Nonnull String username) {
         final Response<UserJson> response;
         try {
@@ -48,6 +49,7 @@ public class UserApiClient implements UsersClient {
         return response.body();
     }
 
+    @Step("Отправка приглашения от пользователя {username} пользователю {targetUsername}")
     public @Nullable UserJson sendInvitation(@Nonnull String username, @Nonnull String targetUsername) {
         final Response<UserJson> response;
         try {
@@ -60,6 +62,7 @@ public class UserApiClient implements UsersClient {
         return response.body();
     }
 
+    @Step("Принятие приглашения от пользователя {username} пользователю {targetUsername}")
     public @Nullable UserJson acceptInvitation(@Nonnull String username, @Nonnull String targetUsername) {
         final Response<UserJson> response;
         try {

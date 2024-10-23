@@ -10,7 +10,9 @@ import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 import io.qameta.allure.Step;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 
 @ParametersAreNonnullByDefault
 public class SpendDbClient implements SpendClient {
@@ -23,21 +25,25 @@ public class SpendDbClient implements SpendClient {
             CFG.spendJdbcUrl()
     );
 
+    @Nonnull
     @Override
     @Step("Создание новой траты")
     public SpendJson createSpend(SpendJson spend) {
-        return xaTransactionTemplate.execute(() -> SpendJson.fromEntity(
-                        spendRepository.create(SpendEntity.fromJson(spend))
-                )
+        return Objects.requireNonNull(
+                xaTransactionTemplate.execute(() ->
+                        SpendJson.fromEntity(spendRepository.create(SpendEntity.fromJson(spend)))
+                ), "Transaction result is null"
         );
     }
 
+    @Nonnull
     @Override
     @Step("Создание новой категории")
     public CategoryJson createCategory(CategoryJson category) {
-        return xaTransactionTemplate.execute(() -> CategoryJson.fromEntity(
-                        spendRepository.createCategory(CategoryEntity.fromJson(category))
-                )
+        return Objects.requireNonNull(
+                xaTransactionTemplate.execute(() ->
+                        CategoryJson.fromEntity(spendRepository.createCategory(CategoryEntity.fromJson(category)))
+                ), "Transaction result is null"
         );
     }
 

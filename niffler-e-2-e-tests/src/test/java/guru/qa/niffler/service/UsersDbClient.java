@@ -16,10 +16,12 @@ import io.qameta.allure.Step;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
@@ -37,16 +39,18 @@ public class UsersDbClient implements UsersClient {
             CFG.userdataJdbcUrl()
     );
 
+    @Nonnull
     @Override
     @Step("Создание нового пользователя: {username}")
     public UserJson createUser(String username, String password) {
-        return xaTransactionTemplate.execute(() -> UserJson.fromEntity(
-                        createNewUser(username, password),
-                        null
-                )
+        return Objects.requireNonNull(
+                xaTransactionTemplate.execute(() ->
+                        UserJson.fromEntity(createNewUser(username, password), null)
+                ), "Transaction result is null"
         );
     }
 
+    @Nonnull
     @Override
     @Step("Добавление {count} входящих приглашений пользователю: {targetUser.username}")
     public List<String> addIncomeInvitation(UserJson targetUser, int count) {
@@ -65,6 +69,7 @@ public class UsersDbClient implements UsersClient {
         return incomes;
     }
 
+    @Nonnull
     @Override
     @Step("Добавление {count} исходящих приглашений пользователю: {targetUser.username}")
     public List<String> addOutcomeInvitation(UserJson targetUser, int count) {
@@ -83,6 +88,7 @@ public class UsersDbClient implements UsersClient {
         return outcomes;
     }
 
+    @Nonnull
     @Override
     @Step("Добавление {count} друзей пользователю: {targetUser.username}")
     public List<String> addFriend(UserJson targetUser, int count) {
@@ -101,12 +107,14 @@ public class UsersDbClient implements UsersClient {
         return friends;
     }
 
+    @Nonnull
     private UserEntity createNewUser(String username, String password) {
         AuthUserEntity authUser = authUserEntity(username, password);
         authUserRepository.create(authUser);
         return userdataUserRepository.create(userEntity(username));
     }
 
+    @Nonnull
     private UserEntity userEntity(String username) {
         UserEntity ue = new UserEntity();
         ue.setUsername(username);
@@ -114,6 +122,7 @@ public class UsersDbClient implements UsersClient {
         return ue;
     }
 
+    @Nonnull
     private AuthUserEntity authUserEntity(String username, String password) {
         AuthUserEntity authUser = new AuthUserEntity();
         authUser.setUsername(username);

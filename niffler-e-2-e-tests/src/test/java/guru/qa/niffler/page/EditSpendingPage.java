@@ -15,9 +15,9 @@ public class EditSpendingPage {
     private final SelenideElement categoryInput = $("#category");
 
     @Getter
-    private final Calendar calendar = new Calendar();
+    private final Calendar calendar = new Calendar($("input[name='date']"));
 
-    @Step("Установить новое описание траты: {description}")
+    @Step("Ввести новое описание траты: {description}")
     public EditSpendingPage setNewSpendingDescription(String description) {
         descriptionInput.clear();
         descriptionInput.setValue(description);

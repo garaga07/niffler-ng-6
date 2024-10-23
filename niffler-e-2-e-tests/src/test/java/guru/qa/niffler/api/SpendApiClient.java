@@ -68,6 +68,7 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
+    @Nonnull
     @Step("Получение всех трат пользователя: {username}")
     public List<SpendJson> allSpends(String username,
                                      @Nullable CurrencyValues currency,
@@ -128,6 +129,7 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
+    @Nonnull
     @Step("Получение всех категорий пользователя: {username}")
     public List<CategoryJson> allCategory(String username) {
         final Response<List<CategoryJson>> response;
