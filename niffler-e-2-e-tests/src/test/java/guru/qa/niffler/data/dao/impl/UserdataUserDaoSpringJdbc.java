@@ -34,9 +34,9 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(
                     """
-                        INSERT INTO "user" (username, currency, firstname, surname, photo, photo_small, full_name)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                        """,
+                            INSERT INTO "user" (username, currency, firstname, surname, photo, photo_small, full_name)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                            """,
                     Statement.RETURN_GENERATED_KEYS
             );
             ps.setString(1, user.getUsername());
@@ -59,14 +59,14 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     public UserEntity update(UserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         jdbcTemplate.update("""
-                          UPDATE "user"
-                            SET currency    = ?,
-                                firstname   = ?,
-                                surname     = ?,
-                                photo       = ?,
-                                photo_small = ?
-                            WHERE id = ?
-            """,
+                                      UPDATE "user"
+                                        SET currency    = ?,
+                                            firstname   = ?,
+                                            surname     = ?,
+                                            photo       = ?,
+                                            photo_small = ?
+                                        WHERE id = ?
+                        """,
                 user.getCurrency().name(),
                 user.getFirstname(),
                 user.getSurname(),
@@ -75,11 +75,11 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
                 user.getId());
 
         jdbcTemplate.batchUpdate("""
-                             INSERT INTO friendship (requester_id, addressee_id, status)
-                             VALUES (?, ?, ?)
-                             ON CONFLICT (requester_id, addressee_id)
-                                 DO UPDATE SET status = ?
-            """,
+                                         INSERT INTO friendship (requester_id, addressee_id, status)
+                                         VALUES (?, ?, ?)
+                                         ON CONFLICT (requester_id, addressee_id)
+                                             DO UPDATE SET status = ?
+                        """,
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(@Nonnull PreparedStatement ps, int i) throws SQLException {
@@ -105,8 +105,8 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
             return Optional.ofNullable(
                     jdbcTemplate.queryForObject(
                             """
-                                   SELECT * FROM "user" WHERE id = ?
-                                """,
+                                       SELECT * FROM "user" WHERE id = ?
+                                    """,
                             UserdataUserEntityRowMapper.instance,
                             id
                     )
@@ -125,8 +125,8 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
             return Optional.ofNullable(
                     jdbcTemplate.queryForObject(
                             """
-                                   SELECT * FROM "user" WHERE username = ?
-                                """,
+                                       SELECT * FROM "user" WHERE username = ?
+                                    """,
                             UserdataUserEntityRowMapper.instance,
                             username
                     )
@@ -142,8 +142,8 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         return jdbcTemplate.query(
                 """
-                        SELECT * FROM "user"
-                    """,
+                            SELECT * FROM "user"
+                        """,
                 UserdataUserEntityRowMapper.instance
         );
     }

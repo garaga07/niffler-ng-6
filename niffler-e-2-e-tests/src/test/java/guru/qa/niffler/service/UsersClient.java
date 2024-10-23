@@ -10,10 +10,13 @@ import java.util.List;
 public interface UsersClient {
     @Nonnull
     UserJson createUser(String username, String password);
+
     @Nonnull
     List<String> addIncomeInvitation(UserJson targetUser, int count);
+
     @Nonnull
     List<String> addOutcomeInvitation(UserJson targetUser, int count);
+
     @Nonnull
     List<String> addFriend(UserJson targetUser, int count);
 }

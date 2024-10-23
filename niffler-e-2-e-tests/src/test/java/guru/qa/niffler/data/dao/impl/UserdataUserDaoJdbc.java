@@ -30,8 +30,8 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public UserEntity create(UserEntity user) {
         try (PreparedStatement ps = holder(url).connection().prepareStatement(
                 """
-                       INSERT INTO "user" (username, currency) VALUES (?, ?)
-                    """,
+                           INSERT INTO "user" (username, currency) VALUES (?, ?)
+                        """,
                 PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getCurrency().name());
@@ -57,22 +57,22 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public UserEntity update(UserEntity user) {
         try (PreparedStatement usersPs = holder(url).connection().prepareStatement(
                 """
-                      UPDATE "user"
-                        SET currency    = ?,
-                            firstname   = ?,
-                            surname     = ?,
-                            photo       = ?,
-                            photo_small = ?
-                        WHERE id = ?
-                    """);
+                          UPDATE "user"
+                            SET currency    = ?,
+                                firstname   = ?,
+                                surname     = ?,
+                                photo       = ?,
+                                photo_small = ?
+                            WHERE id = ?
+                        """);
 
              PreparedStatement friendsPs = holder(url).connection().prepareStatement(
                      """
-                         INSERT INTO friendship (requester_id, addressee_id, status)
-                         VALUES (?, ?, ?)
-                         ON CONFLICT (requester_id, addressee_id)
-                             DO UPDATE SET status = ?
-                         """)
+                             INSERT INTO friendship (requester_id, addressee_id, status)
+                             VALUES (?, ?, ?)
+                             ON CONFLICT (requester_id, addressee_id)
+                                 DO UPDATE SET status = ?
+                             """)
         ) {
             usersPs.setString(1, user.getCurrency().name());
             usersPs.setString(2, user.getFirstname());
@@ -103,8 +103,8 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public Optional<UserEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(url).connection().prepareStatement(
                 """
-                        SELECT * FROM "user" WHERE id = ?
-                    """
+                            SELECT * FROM "user" WHERE id = ?
+                        """
         )) {
             ps.setObject(1, id);
 
@@ -129,8 +129,8 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public Optional<UserEntity> findByUsername(String username) {
         try (PreparedStatement ps = holder(url).connection().prepareStatement(
                 """
-                        SELECT * FROM "user" WHERE username = ?
-                    """
+                            SELECT * FROM "user" WHERE username = ?
+                        """
         )) {
             ps.setString(1, username);
 
