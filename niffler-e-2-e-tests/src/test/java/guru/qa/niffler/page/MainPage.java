@@ -2,6 +2,10 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.Header;
+import guru.qa.niffler.page.component.SpendingTable;
+import io.qameta.allure.Step;
+import lombok.Getter;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -12,51 +16,37 @@ public class MainPage {
     private final ElementsCollection tableRows = $("#spendings tbody").$$("tr");
     private final SelenideElement statisticsHeader = $x("//h2[text()='Statistics']");
     private final SelenideElement historyOfSpendingHeader = $x("//h2[text()='History of Spendings']");
-    private final SelenideElement personIcon = $("[data-testid='PersonIcon']");
-    private final SelenideElement profileLink = $("a.nav-link[href='/profile']");
-    private final SelenideElement friendsLink = $("a.nav-link[href='/people/friends']");
-    private final SelenideElement allPeopleButton = $x("(//a[@class='link nav-link'])[3]");
     private final SelenideElement searchInput = $("input[type='text']");
+    @Getter
+    private final Header header = new Header();
+    @Getter
+    private final SpendingTable spendingTable = new SpendingTable();
 
+    @Step("Редактировать трату с описанием: {spendingDescription}")
     public EditSpendingPage editSpending(String spendingDescription) {
         searchSpend(spendingDescription);
         tableRows.find(text(spendingDescription)).$$("td").get(5).click();
         return new EditSpendingPage();
     }
 
-    public ProfilePage goToProfile() {
-        personIcon.click();
-        profileLink.click();
-        return new ProfilePage();
-    }
-
-    public FriendsPage goToFriends() {
-        personIcon.click();
-        friendsLink.click();
-        return new FriendsPage();
-    }
-
-    public FriendsPage goToAllPeople() {
-        personIcon.click();
-        allPeopleButton.click();
-        return new FriendsPage();
-    }
-
+    @Step("Проверить, что таблица содержит трату с описанием: {spendingDescription}")
     public void checkThatTableContainsSpending(String spendingDescription) {
         searchSpend(spendingDescription);
         tableRows.find(text(spendingDescription)).should(visible);
     }
 
+    @Step("Проверить, что заголовок статистики содержит текст: {value}")
     public MainPage checkStatisticsHeaderContainsText(String value) {
         statisticsHeader.shouldHave(text(value)).shouldBe(visible);
         return this;
     }
 
-    public MainPage checkHistoryOfSpendingHeaderContainsText(String value) {
+    @Step("Проверить, что заголовок истории трат содержит текст: {value}")
+    public void checkHistoryOfSpendingHeaderContainsText(String value) {
         historyOfSpendingHeader.shouldHave(text(value)).shouldBe(visible);
-        return this;
     }
 
+    @Step("Найти трату по описанию: {spendingDescription}")
     public void searchSpend(String spendingDescription) {
         searchInput.setValue(spendingDescription).pressEnter();
     }

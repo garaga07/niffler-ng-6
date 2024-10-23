@@ -1,6 +1,7 @@
 package guru.qa.niffler.page;
 
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -13,26 +14,31 @@ public class LoginPage {
     private final SelenideElement createNewAccountButton = $(".form__register");
     private final SelenideElement formError = $(".form__error");
 
+    @Step("Ввести имя пользователя: {username}")
     public LoginPage setUsername(String username) {
         usernameInput.setValue(username);
         return new LoginPage();
     }
 
+    @Step("Ввести пароль")
     public LoginPage setPassword(String password) {
         passwordInput.setValue(password);
         return new LoginPage();
     }
 
+    @Step("Нажать кнопку отправки формы")
     public LoginPage submitButtonClick() {
         submitButton.click();
         return new LoginPage();
     }
 
-    public RegisterPage submitCreateNewAccount() {
+    @Step("Перейти на страницу создания нового аккаунта")
+    public void submitCreateNewAccount() {
         createNewAccountButton.click();
-        return new RegisterPage();
+        new RegisterPage();
     }
 
+    @Step("Авторизация с именем пользователя: {username} и паролем")
     public MainPage login(String username, String password) {
         usernameInput.setValue(username);
         passwordInput.setValue(password);
@@ -40,6 +46,7 @@ public class LoginPage {
         return new MainPage();
     }
 
+    @Step("Проверка текста ошибки: {value}")
     public void checkFormErrorText(String value) {
         formError.shouldHave(text(value)).shouldBe(visible);
     }

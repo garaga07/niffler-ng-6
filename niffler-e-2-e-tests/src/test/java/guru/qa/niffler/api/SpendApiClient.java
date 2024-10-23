@@ -5,17 +5,21 @@ import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.service.SpendClient;
+import io.qameta.allure.Step;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ParametersAreNonnullByDefault
 public class SpendApiClient implements SpendClient {
 
     private final Retrofit retrofit = new Retrofit.Builder()
@@ -25,7 +29,8 @@ public class SpendApiClient implements SpendClient {
 
     private final SpendApi spendApi = retrofit.create(SpendApi.class);
 
-    public SpendJson createSpend(SpendJson spend) {
+    @Step("Создание новой траты")
+    public @Nullable SpendJson createSpend(SpendJson spend) {
         final Response<SpendJson> response;
         try {
             response = spendApi.addSpend(spend)
@@ -37,7 +42,8 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    public SpendJson editSpend(SpendJson spend) {
+    @Step("Редактирование траты")
+    public @Nullable SpendJson editSpend(SpendJson spend) {
         final Response<SpendJson> response;
         try {
             response = spendApi.editSpend(spend)
@@ -49,7 +55,8 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    public SpendJson getSpend(String id) {
+    @Step("Получение траты")
+    public @Nullable SpendJson getSpend(String id) {
         final Response<SpendJson> response;
         try {
             response = spendApi.getSpend(id)
@@ -61,10 +68,12 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
+    @Nonnull
+    @Step("Получение всех трат пользователя: {username}")
     public List<SpendJson> allSpends(String username,
-                                     CurrencyValues currency,
-                                     String from,
-                                     String to) {
+                                     @Nullable CurrencyValues currency,
+                                     @Nullable String from,
+                                     @Nullable String to) {
         final Response<List<SpendJson>> response;
         try {
             response = spendApi.allSpends(username, currency, from, to)
@@ -76,6 +85,7 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
+    @Step("Удаление траты")
     public void removeSpends(@Nonnull String username, @Nonnull String... ids) {
         final Response<Void> response;
         try {
@@ -87,7 +97,8 @@ public class SpendApiClient implements SpendClient {
         assertEquals(200, response.code());
     }
 
-    public CategoryJson createCategory(CategoryJson category) {
+    @Step("Создание новой категории")
+    public @Nullable CategoryJson createCategory(CategoryJson category) {
         final Response<CategoryJson> response;
         try {
             response = spendApi.addCategory(category)
@@ -100,11 +111,13 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
+    @Step("Удаление категории")
     public void removeCategory(CategoryJson category) {
         throw new UnsupportedOperationException("Category deletion is not supported with API");
     }
 
-    public CategoryJson updateCategory(CategoryJson category) {
+    @Step("Обновление категории")
+    public @Nullable CategoryJson updateCategory(CategoryJson category) {
         final Response<CategoryJson> response;
         try {
             response = spendApi.updateCategory(category)
@@ -116,6 +129,8 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
+    @Nonnull
+    @Step("Получение всех категорий пользователя: {username}")
     public List<CategoryJson> allCategory(String username) {
         final Response<List<CategoryJson>> response;
         try {

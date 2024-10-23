@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
 
+import javax.annotation.Nonnull;
 import java.util.Date;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public record SpendJson(
         @JsonProperty("username")
         String username) {
 
-    public static SpendJson fromEntity(SpendEntity entity) {
+    public static @Nonnull SpendJson fromEntity(@Nonnull SpendEntity entity) {
         final CategoryEntity category = entity.getCategory();
         final String username = entity.getUsername();
         return new SpendJson(

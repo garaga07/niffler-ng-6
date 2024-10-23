@@ -3,17 +3,23 @@ package guru.qa.niffler.api;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.service.UsersClient;
+import io.qameta.allure.Step;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ParametersAreNonnullByDefault
 public class UserApiClient implements UsersClient {
 
     // Настройка Retrofit для User API
@@ -30,7 +36,8 @@ public class UserApiClient implements UsersClient {
             .build();
     private final AuthApi authApi = authRetrofit.create(AuthApi.class);
 
-    public UserJson getCurrentUser(String username) {
+    @Step("Получение текущего пользователя по имени: {username}")
+    public @Nullable UserJson getCurrentUser(@Nonnull String username) {
         final Response<UserJson> response;
         try {
             response = userApi.getCurrentUser(username)
@@ -42,7 +49,8 @@ public class UserApiClient implements UsersClient {
         return response.body();
     }
 
-    public UserJson sendInvitation(String username, String targetUsername) {
+    @Step("Отправка приглашения от пользователя {username} пользователю {targetUsername}")
+    public @Nullable UserJson sendInvitation(@Nonnull String username, @Nonnull String targetUsername) {
         final Response<UserJson> response;
         try {
             response = userApi.sendInvitation(username, targetUsername)
@@ -54,7 +62,8 @@ public class UserApiClient implements UsersClient {
         return response.body();
     }
 
-    public UserJson acceptInvitation(String username, String targetUsername) {
+    @Step("Принятие приглашения от пользователя {username} пользователю {targetUsername}")
+    public @Nullable UserJson acceptInvitation(@Nonnull String username, @Nonnull String targetUsername) {
         final Response<UserJson> response;
         try {
             response = userApi.acceptInvitation(username, targetUsername)
@@ -67,7 +76,8 @@ public class UserApiClient implements UsersClient {
     }
 
     @Override
-    public UserJson createUser(String username, String password) {
+    @Step("Создание нового пользователя: {username}")
+    public @Nonnull UserJson createUser(@Nonnull String username, @Nonnull String password) {
         // Шаг 1: Запрос формы регистрации для получения CSRF токена
         final Response<Void> formResponse;
         try {
@@ -108,11 +118,12 @@ public class UserApiClient implements UsersClient {
         assertEquals(201, registerResponse.code(), "Ожидался код 201 для успешной регистрации");
 
         // Шаг 4: Получение информации о созданном пользователе
-        return getCurrentUser(username);
+        return Objects.requireNonNull(getCurrentUser(username), "Пользователь не был найден после регистрации");
     }
 
     @Override
-    public List<String> addIncomeInvitation(UserJson targetUser, int count) {
+    @Step("Добавление {count} входящих приглашений пользователю: {targetUser.username}")
+    public @Nonnull List<String> addIncomeInvitation(@Nonnull UserJson targetUser, int count) {
         List<String> incomeUsers = new ArrayList<>();
 
         if (count > 0) {
@@ -137,7 +148,8 @@ public class UserApiClient implements UsersClient {
     }
 
     @Override
-    public List<String> addOutcomeInvitation(UserJson targetUser, int count) {
+    @Step("Добавление {count} исходящих приглашений пользователю: {targetUser.username}")
+    public @Nonnull List<String> addOutcomeInvitation(@Nonnull UserJson targetUser, int count) {
         List<String> outcomeUsers = new ArrayList<>();
 
         if (count > 0) {
@@ -163,7 +175,8 @@ public class UserApiClient implements UsersClient {
     }
 
     @Override
-    public List<String> addFriend(UserJson targetUser, int count) {
+    @Step("Добавление {count} друзей пользователю: {targetUser.username}")
+    public @Nonnull List<String> addFriend(@Nonnull UserJson targetUser, int count) {
         List<String> friends = new ArrayList<>();
 
         if (count > 0) {
