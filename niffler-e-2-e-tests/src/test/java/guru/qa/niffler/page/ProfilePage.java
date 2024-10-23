@@ -28,8 +28,7 @@ public class ProfilePage {
     @Step("Архивировать категорию с названием: {categoryName}")
     public ProfilePage clickArchiveButtonForCategoryName(String categoryName) {
         SelenideElement archiveButtonInRow = categoryList
-                .filter(text(categoryName))
-                .first()
+                .find(text(categoryName))
                 .parent().$(".MuiIconButton-sizeMedium[aria-label='Archive category']");
         archiveButtonInRow.shouldBe(visible).click();
         return this;
@@ -39,8 +38,7 @@ public class ProfilePage {
     @Step("Разархивировать категорию с названием: {categoryName}")
     public ProfilePage clickUnarchiveButtonForCategoryName(String categoryName) {
         SelenideElement unarchiveButtonInRow = categoryList
-                .filter(text(categoryName))
-                .first()
+                .find(text(categoryName))
                 .parent().$("[data-testid='UnarchiveOutlinedIcon']");
         unarchiveButtonInRow.shouldBe(visible).click();
         return this;
