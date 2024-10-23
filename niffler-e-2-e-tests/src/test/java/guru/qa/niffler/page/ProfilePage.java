@@ -3,7 +3,6 @@ package guru.qa.niffler.page;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import guru.qa.niffler.page.component.Calendar;
 import io.qameta.allure.Step;
 
 import javax.annotation.Nonnull;
@@ -13,14 +12,13 @@ import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 
 @ParametersAreNonnullByDefault
-public class ProfilePage {
+public class ProfilePage extends BasePage<ProfilePage> {
     private final SelenideElement archiveButtonSubmit = $x("//button[text()='Archive']");
     private final SelenideElement unarchiveButtonSubmit = $x("//button[text()='Unarchive']");
     private final SelenideElement saveButton = $x("//button[text()='Save changes']");
     private final ElementsCollection categoryList = $$(".MuiChip-root");
     private final SelenideElement successArchiveMessage = $x("//div[contains(@class,'MuiTypography-root MuiTypography-body1')]");
     private final SelenideElement successUnarchiveMessage = $x("//div[contains(@class,'MuiTypography-root MuiTypography-body1')]");
-    private final SelenideElement successSaveChangesMessage = $x("//div[text()='Profile successfully updated']");
     private final SelenideElement showArchiveCategoryButton = $x("//input[@type='checkbox']");
     private final SelenideElement nameInput = $("#name");
 
@@ -101,13 +99,6 @@ public class ProfilePage {
     @Step("Нажать кнопку сохранить изменения")
     public ProfilePage clickSaveButton() {
         saveButton.click();
-        return this;
-    }
-
-    @Nonnull
-    @Step("Проверить успешное сообщение об обновлении профиля")
-    public ProfilePage shouldBeVisibleSaveChangesSuccessMessage() {
-        successSaveChangesMessage.shouldHave(text("Profile successfully updated")).shouldBe(visible);
         return this;
     }
 

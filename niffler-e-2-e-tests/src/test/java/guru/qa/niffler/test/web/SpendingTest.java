@@ -7,7 +7,6 @@ import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.model.UserJson;
-import guru.qa.niffler.page.EditSpendingPage;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,7 @@ public class SpendingTest {
 
     @User
     @Test
-    void addSpendTest(UserJson user) {
+    void addSpendAndCheckAlertTest(UserJson user) {
         String category = randomCategoryName();
         String description = randomSentence(2);
 
@@ -57,7 +56,8 @@ public class SpendingTest {
                 .setNewSpendingDescription(description)
                 .setSpendingAmount("10")
                 .getCalendar()
-                .selectDateInCalendar(new Date());
+                .selectDateInCalendar(new Date())
+                .checkAlert("New spending is successfully created");
         new MainPage().checkThatTableContainsSpending(description);
     }
 }

@@ -1,12 +1,12 @@
 package guru.qa.niffler.api;
 
-import guru.qa.niffler.config.Config;
+import com.google.common.base.Stopwatch;
+import guru.qa.niffler.api.core.RestClient;
+import guru.qa.niffler.api.core.ThreadSafeCookieStore;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.service.UsersClient;
 import io.qameta.allure.Step;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,27 +14,21 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ParametersAreNonnullByDefault
-public class UserApiClient implements UsersClient {
+public class UserApiClient extends RestClient implements UsersClient {
 
-    // Настройка Retrofit для User API
-    private final Retrofit userRetrofit = new Retrofit.Builder()
-            .baseUrl(Config.getInstance().userdataUrl())
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build();
-    private final UserApi userApi = userRetrofit.create(UserApi.class);
+    private final AuthApiClient authApiClient = new AuthApiClient();
+    private final UserApi userApi;
 
-    // Настройка Retrofit для Auth API
-    private final Retrofit authRetrofit = new Retrofit.Builder()
-            .baseUrl(Config.getInstance().authUrl())
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build();
-    private final AuthApi authApi = authRetrofit.create(AuthApi.class);
+    public UserApiClient() {
+        super(CFG.userdataUrl());
+        this.userApi = retrofit.create(UserApi.class);
+    }
 
     @Step("Получение текущего пользователя по имени: {username}")
     public @Nullable UserJson getCurrentUser(@Nonnull String username) {
@@ -76,49 +70,35 @@ public class UserApiClient implements UsersClient {
     }
 
     @Override
-    @Step("Создание нового пользователя: {username}")
+    @Step("Создание нового пользователя с именем: {username}")
     public @Nonnull UserJson createUser(@Nonnull String username, @Nonnull String password) {
-        // Шаг 1: Запрос формы регистрации для получения CSRF токена
-        final Response<Void> formResponse;
-        try {
-            formResponse = authApi.requestRegisterForm().execute();
-        } catch (IOException e) {
-            throw new AssertionError("Ошибка при выполнении запроса формы регистрации", e);
-        }
+        // Запрос формы регистрации для получения CSRF токена
+        authApiClient.requestRegisterForm();
+        authApiClient.registerUser(
+                username,
+                password,
+                password,
+                ThreadSafeCookieStore.INSTANCE.cookieValue("XSRF-TOKEN")
+        );
 
-        // Убедиться, что запрос формы выполнен успешно
-        assertEquals(200, formResponse.code(), "Ожидался код 200 при запросе формы регистрации");
+        // Ожидание появления пользователя после регистрации
+        long maxWaitTime = 5000L; // 5 секунд ожидания
+        Stopwatch sw = Stopwatch.createStarted();
 
-        // Шаг 2: Извлечение CSRF токена из заголовка ответа
-        String cookieHeader = formResponse.headers().get("Set-Cookie");
-        if (cookieHeader == null || !cookieHeader.contains("XSRF-TOKEN")) {
-            throw new AssertionError("Не удалось получить XSRF-TOKEN из заголовка Set-Cookie");
-        }
-
-        String csrfToken = null;
-        for (String cookie : cookieHeader.split(";")) {
-            if (cookie.contains("XSRF-TOKEN")) {
-                csrfToken = cookie.split("=")[1].trim();
-                break;
+        while (sw.elapsed(TimeUnit.MILLISECONDS) < maxWaitTime) {
+            try {
+                UserJson userJson = userApi.getCurrentUser(username).execute().body();
+                if (userJson != null && userJson.id() != null) {
+                    return userJson; // Пользователь найден, возвращаем
+                } else {
+                    Thread.sleep(100); // Ожидание перед следующей проверкой
+                }
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException("Ошибка при выполнении запроса на получение пользователя или ожидании", e);
             }
         }
-
-        if (csrfToken == null) {
-            throw new AssertionError("XSRF-TOKEN не найден в заголовке Set-Cookie");
-        }
-
-        // Шаг 3: Отправка запроса на регистрацию пользователя
-        final Response<Void> registerResponse;
-        try {
-            registerResponse = authApi.register(username, password, password, csrfToken).execute();
-        } catch (IOException e) {
-            throw new AssertionError("Ошибка при выполнении запроса регистрации пользователя", e);
-        }
-
-        assertEquals(201, registerResponse.code(), "Ожидался код 201 для успешной регистрации");
-
-        // Шаг 4: Получение информации о созданном пользователе
-        return Objects.requireNonNull(getCurrentUser(username), "Пользователь не был найден после регистрации");
+        // Если пользователь не найден за отведенное время
+        throw new AssertionError("Пользователь не был найден в системе после истечения времени ожидания");
     }
 
     @Override
