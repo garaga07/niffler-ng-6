@@ -58,7 +58,7 @@ public class ProfileTest {
 
     @User
     @Test
-    void changeName(UserJson user) {
+    void changeNameAndCheckAlertTest(UserJson user) {
         String name = randomName();
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.testData().password())
@@ -66,7 +66,7 @@ public class ProfileTest {
                 .toProfilePage()
                 .setName(name)
                 .clickSaveButton()
-                .shouldBeVisibleSaveChangesSuccessMessage()
+                .checkAlert("Profile successfully updated")
                 .checkName(name);
     }
 }

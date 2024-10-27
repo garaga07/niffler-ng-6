@@ -44,7 +44,7 @@ public class SpendingTest {
 
     @User
     @Test
-    void addSpendTest(UserJson user) {
+    void addSpendAndCheckAlertTest(UserJson user) {
         String category = randomCategoryName();
         String description = randomSentence(2);
 
@@ -56,7 +56,8 @@ public class SpendingTest {
                 .setNewSpendingDescription(description)
                 .setSpendingAmount("10")
                 .getCalendar()
-                .selectDateInCalendar(new Date());
+                .selectDateInCalendar(new Date())
+                .checkAlert("New spending is successfully created");
         new MainPage().checkThatTableContainsSpending(description);
     }
 }
