@@ -2,8 +2,10 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.Calendar;
 import guru.qa.niffler.page.component.SearchField;
 import io.qameta.allure.Step;
+import lombok.Getter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -26,6 +28,10 @@ public class FriendsPage extends BasePage<FriendsPage> {
     private final SelenideElement confirmDeclineButton =
             $(".MuiPaper-root button.MuiButtonBase-root.MuiButton-containedPrimary");
     private final SelenideElement unfriendButton = $("button[class*='MuiButton-containedSecondary']");
+    private final SelenideElement searchInput = $("input[type='text']");
+
+    @Getter
+    private final SearchField<FriendsPage> searchField = new SearchField<>(searchInput, this);
 
     @Nonnull
     @Step("Проверка отображения заголовка списка друзей")

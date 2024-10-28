@@ -2,6 +2,7 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.SearchField;
 import guru.qa.niffler.page.component.SpendingTable;
 import io.qameta.allure.Step;
 import lombok.Getter;
@@ -19,8 +20,11 @@ public class MainPage extends BasePage<MainPage> {
     private final ElementsCollection tableRows = $("#spendings tbody").$$("tr");
     private final SelenideElement statisticsHeader = $x("//h2[text()='Statistics']");
     private final SelenideElement historyOfSpendingHeader = $x("//h2[text()='History of Spendings']");
+    private final SelenideElement searchInput = $("input[type='text']");
     @Getter
     private final SpendingTable<MainPage> spendingTable = new SpendingTable<>($(".MuiTableContainer-root"), this);
+    @Getter
+    private final SearchField<MainPage> searchField = new SearchField<>(searchInput, this);
 
     @Nonnull
     @Step("Редактировать трату с описанием: {spendingDescription}")

@@ -14,12 +14,10 @@ public abstract class BasePage<T extends BasePage<?>> {
     protected final SelenideElement alert = $x("//div[contains(@class,'MuiTypography-root MuiTypography-body1')]");
     @Getter
     protected final Header<T> header;
-    protected final SearchField<T> searchField;  // Добавляем SearchField
 
     @SuppressWarnings("unchecked")
     public BasePage() {
         this.header = new Header<>($("#root header"), (T) this);
-        this.searchField = new SearchField<>($("input[type='text']"), (T) this);  // Инициализируем объект поиска
     }
 
     @SuppressWarnings("unchecked")
