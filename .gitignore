@@ -48,3 +48,8 @@ out/
 
 ### allure ###
 /niffler-e-2-e-tests/allure-results/
+/hs_err_pid3552.log
+/hs_err_pid24116.log
+/hs_err_pid29632.log
+/replay_pid3552.log
+/replay_pid29632.log

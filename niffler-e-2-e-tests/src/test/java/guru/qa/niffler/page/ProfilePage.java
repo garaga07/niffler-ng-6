@@ -1,109 +1,128 @@
 package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
+import org.springframework.core.io.ClassPathResource;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
-import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Condition.attribute;
+import static com.codeborne.selenide.Condition.attributeMatching;
+import static com.codeborne.selenide.Condition.disabled;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.value;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
-@ParametersAreNonnullByDefault
 public class ProfilePage extends BasePage<ProfilePage> {
-    private final SelenideElement archiveButtonSubmit = $x("//button[text()='Archive']");
-    private final SelenideElement unarchiveButtonSubmit = $x("//button[text()='Unarchive']");
-    private final SelenideElement saveButton = $x("//button[text()='Save changes']");
-    private final ElementsCollection categoryList = $$(".MuiChip-root");
-    private final SelenideElement successArchiveMessage = $x("//div[contains(@class,'MuiTypography-root MuiTypography-body1')]");
-    private final SelenideElement successUnarchiveMessage = $x("//div[contains(@class,'MuiTypography-root MuiTypography-body1')]");
-    private final SelenideElement showArchiveCategoryButton = $x("//input[@type='checkbox']");
-    private final SelenideElement nameInput = $("#name");
 
+  public static final String URL = CFG.frontUrl() + "profile";
 
-    @Step("Архивировать категорию с названием: {categoryName}")
-    public ProfilePage clickArchiveButtonForCategoryName(String categoryName) {
-        SelenideElement archiveButtonInRow = categoryList
-                .find(text(categoryName))
-                .parent().$(".MuiIconButton-sizeMedium[aria-label='Archive category']");
-        archiveButtonInRow.shouldBe(visible).click();
-        return this;
+  private final SelenideElement avatar = $("#image__input").parent().$("img");
+  private final SelenideElement userName = $("#username");
+  private final SelenideElement nameInput = $("#name");
+  private final SelenideElement photoInput = $("input[type='file']");
+  private final SelenideElement submitButton = $("button[type='submit']");
+  private final SelenideElement categoryInput = $("input[name='category']");
+  private final SelenideElement archivedSwitcher = $(".MuiSwitch-input");
+
+  private final ElementsCollection bubbles = $$(".MuiChip-filled.MuiChip-colorPrimary");
+  private final ElementsCollection bubblesArchived = $$(".MuiChip-filled.MuiChip-colorDefault");
+
+  @Step("Set name: {0}")
+  @Nonnull
+  public ProfilePage setName(String name) {
+    nameInput.clear();
+    nameInput.setValue(name);
+    return this;
+  }
+
+  @Step("Upload photo from classpath")
+  @Nonnull
+  public ProfilePage uploadPhotoFromClasspath(String path) {
+    photoInput.uploadFromClasspath(path);
+    return this;
+  }
+
+  @Step("Set category: {0}")
+  @Nonnull
+  public ProfilePage addCategory(String category) {
+    categoryInput.setValue(category).pressEnter();
+    return this;
+  }
+
+  @Step("Check category: {0}")
+  @Nonnull
+  public ProfilePage checkCategoryExists(String category) {
+    bubbles.find(text(category)).shouldBe(visible);
+    return this;
+  }
+
+  @Step("Check archived category: {0}")
+  @Nonnull
+  public ProfilePage checkArchivedCategoryExists(String category) {
+    archivedSwitcher.click();
+    bubblesArchived.find(text(category)).shouldBe(visible);
+    return this;
+  }
+
+  @Step("Check userName: {0}")
+  @Nonnull
+  public ProfilePage checkUsername(String username) {
+    this.userName.should(value(username));
+    return this;
+  }
+
+  @Step("Check name: {0}")
+  @Nonnull
+  public ProfilePage checkName(String name) {
+    nameInput.shouldHave(value(name));
+    return this;
+  }
+
+  @Step("Check photo")
+  @Nonnull
+  public ProfilePage checkPhoto(String path) throws IOException {
+    final byte[] photoContent;
+    try (InputStream is = new ClassPathResource(path).getInputStream()) {
+      photoContent = Base64.getEncoder().encode(is.readAllBytes());
     }
+    avatar.should(attribute("src", new String(photoContent, StandardCharsets.UTF_8)));
+    return this;
+  }
 
-    @Nonnull
-    @Step("Разархивировать категорию с названием: {categoryName}")
-    public ProfilePage clickUnarchiveButtonForCategoryName(String categoryName) {
-        SelenideElement unarchiveButtonInRow = categoryList
-                .find(text(categoryName))
-                .parent().$("[data-testid='UnarchiveOutlinedIcon']");
-        unarchiveButtonInRow.shouldBe(visible).click();
-        return this;
-    }
+  @Step("Check photo exist")
+  @Nonnull
+  public ProfilePage checkPhotoExist() {
+    avatar.should(attributeMatching("src", "data:image.*"));
+    return this;
+  }
 
-    @Nonnull
-    @Step("Нажать кнопку для показа архивных категорий")
-    public ProfilePage clickShowArchiveCategoryButton() {
-        Selenide.executeJavaScript("arguments[0].scrollIntoView(true);", showArchiveCategoryButton);
-        Selenide.executeJavaScript("arguments[0].click();", showArchiveCategoryButton);
-        return this;
-    }
+  @Step("Check that category input is disabled")
+  @Nonnull
+  public ProfilePage checkThatCategoryInputDisabled() {
+    categoryInput.should(disabled);
+    return this;
+  }
 
-    @Nonnull
-    @Step("Подтвердить архивирование категории")
-    public ProfilePage clickArchiveButtonSubmit() {
-        archiveButtonSubmit.click();
-        return this;
-    }
+  @Step("Save profile")
+  @Nonnull
+  public ProfilePage submitProfile() {
+    submitButton.click();
+    return this;
+  }
 
-    @Nonnull
-    @Step("Подтвердить разархивирование категории")
-    public ProfilePage clickUnarchiveButtonSubmit() {
-        unarchiveButtonSubmit.click();
-        return this;
-    }
-
-    @Nonnull
-    @Step("Проверить успешное сообщение об архивировании категории: {value}")
-    public ProfilePage shouldBeVisibleArchiveSuccessMessage(String value) {
-        successArchiveMessage.shouldHave(text("Category " + value + " is archived")).shouldBe(visible);
-        return this;
-    }
-
-    @Step("Проверить успешное сообщение об разархивировании категории: {value}")
-    public ProfilePage shouldBeVisibleUnarchiveSuccessMessage(String value) {
-        successUnarchiveMessage.shouldHave(text("Category " + value + " is unarchived")).shouldBe(visible);
-        return this;
-    }
-
-    @Step("Проверить, что активная категория с названием: {value} видна")
-    public void shouldVisibleActiveCategory(String value) {
-        categoryList.findBy(text(value)).shouldBe(visible);
-    }
-
-    @Step("Проверить, что архивная категория с названием: {value} не видна")
-    public void shouldNotVisibleArchiveCategory(String value) {
-        categoryList.findBy(text(value)).shouldNotBe(visible);
-    }
-
-    @Nonnull
-    @Step("Ввести имя: {name}")
-    public ProfilePage setName(String name) {
-        nameInput.clear();
-        nameInput.setValue(name);
-        return this;
-    }
-
-    @Nonnull
-    @Step("Нажать кнопку сохранить изменения")
-    public ProfilePage clickSaveButton() {
-        saveButton.click();
-        return this;
-    }
-
-    @Step("Проверить имя: {name}")
-    public void checkName(String name) {
-        nameInput.shouldHave(value(name));
-    }
+  @Step("Check that page is loaded")
+  @Override
+  @Nonnull
+  public ProfilePage checkThatPageLoaded() {
+    userName.should(visible);
+    return this;
+  }
 }

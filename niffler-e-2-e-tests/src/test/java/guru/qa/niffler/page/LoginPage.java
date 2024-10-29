@@ -4,58 +4,69 @@ import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
-@ParametersAreNonnullByDefault
 public class LoginPage extends BasePage<LoginPage> {
-    private final SelenideElement usernameInput = $("input[name='username']");
-    private final SelenideElement passwordInput = $("input[name='password']");
-    private final SelenideElement submitButton = $("button[type='submit']");
-    private final SelenideElement createNewAccountButton = $(".form__register");
-    private final SelenideElement formError = $(".form__error");
 
-    @Nonnull
-    @Step("Ввести имя пользователя: {username}")
-    public LoginPage setUsername(String username) {
-        usernameInput.setValue(username);
-        return new LoginPage();
-    }
+  public static final String URL = CFG.authUrl() + "login";
 
-    @Nonnull
-    @Step("Ввести пароль")
-    public LoginPage setPassword(String password) {
-        passwordInput.setValue(password);
-        return new LoginPage();
-    }
+  private final SelenideElement usernameInput = $("input[name='username']");
+  private final SelenideElement passwordInput = $("input[name='password']");
+  private final SelenideElement submitButton = $("button[type='submit']");
+  private final SelenideElement registerButton = $("a[href='/register']");
+  private final SelenideElement errorContainer = $(".form__error");
 
-    @Nonnull
-    @Step("Нажать кнопку отправки формы")
-    public LoginPage submitButtonClick() {
-        submitButton.click();
-        return new LoginPage();
-    }
+  @Nonnull
+  public RegisterPage doRegister() {
+    registerButton.click();
+    return new RegisterPage();
+  }
 
-    @Step("Перейти на страницу создания нового аккаунта")
-    public void submitCreateNewAccount() {
-        createNewAccountButton.click();
-        new RegisterPage();
-    }
+  @Step("Fill login page with credentials: username: {0}, password: {1}")
+  @Nonnull
+  public LoginPage fillLoginPage(String login, String password) {
+    setUsername(login);
+    setPassword(password);
+    return this;
+  }
 
-    @Nonnull
-    @Step("Авторизация с именем пользователя: {username} и паролем")
-    public MainPage login(String username, String password) {
-        usernameInput.setValue(username);
-        passwordInput.setValue(password);
-        submitButton.click();
-        return new MainPage();
-    }
+  @Step("Set username: {0}")
+  @Nonnull
+  public LoginPage setUsername(String username) {
+    usernameInput.setValue(username);
+    return this;
+  }
 
-    @Step("Проверка текста ошибки: {value}")
-    public void checkFormErrorText(String value) {
-        formError.shouldHave(text(value)).shouldBe(visible);
-    }
+  @Step("Set password: {0}")
+  @Nonnull
+  public LoginPage setPassword(String password) {
+    passwordInput.setValue(password);
+    return this;
+  }
+
+  @Step("Submit login")
+  @Nonnull
+  public <T extends BasePage<?>> T submit(T expectedPage) {
+    submitButton.click();
+    return expectedPage;
+  }
+
+  @Step("Check error on page: {error}")
+  @Nonnull
+  public LoginPage checkError(String error) {
+    errorContainer.shouldHave(text(error));
+    return this;
+  }
+
+  @Step("Check that page is loaded")
+  @Override
+  @Nonnull
+  public LoginPage checkThatPageLoaded() {
+    usernameInput.should(visible);
+    passwordInput.should(visible);
+    return this;
+  }
 }
