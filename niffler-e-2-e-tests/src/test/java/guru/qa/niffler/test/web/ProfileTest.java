@@ -9,17 +9,13 @@ import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.ProfilePage;
-import guru.qa.niffler.utils.ScreenDiffResult;
 import org.junit.jupiter.api.Test;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import static com.codeborne.selenide.Selenide.$;
 import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 import static guru.qa.niffler.utils.RandomDataUtils.randomName;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @WebTest
 public class ProfileTest {
@@ -143,7 +139,7 @@ public class ProfileTest {
 
     @User
     @ScreenShotTest(value = "img/profile-expected.png")
-    void checkProfileImageTest(UserJson user, BufferedImage expected) throws IOException {
+    void checkProfileImageTest(UserJson user, BufferedImage expectedProfileImage) throws IOException {
         Selenide.open(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
@@ -151,11 +147,7 @@ public class ProfileTest {
                 .getHeader()
                 .toProfilePage()
                 .uploadPhotoFromClasspath("img/cat.png")
-                .submitProfile();
-        BufferedImage actual = ImageIO.read($(".MuiAvatar-img").screenshot());
-        assertFalse(new ScreenDiffResult(
-                actual,
-                expected
-        ));
+                .submitProfile()
+                .checkProfileImage(expectedProfileImage);
     }
 }

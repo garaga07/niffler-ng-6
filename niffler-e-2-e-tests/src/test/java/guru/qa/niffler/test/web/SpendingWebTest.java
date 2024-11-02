@@ -10,17 +10,12 @@ import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.utils.RandomDataUtils;
-import guru.qa.niffler.utils.ScreenDiffResult;
 import org.junit.jupiter.api.Test;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-
-import static com.codeborne.selenide.Selenide.$;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @WebTest
 public class SpendingWebTest {
@@ -126,16 +121,12 @@ public class SpendingWebTest {
             )
     )
     @ScreenShotTest(value = "img/expected-stat.png")
-    void checkStatComponentTest(UserJson user, BufferedImage expected) throws IOException, InterruptedException {
+    void checkStatComponentTest(UserJson user, BufferedImage expectedStatisticImage) throws IOException, InterruptedException {
         Selenide.open(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage());
         Thread.sleep(3000);
-        BufferedImage actual = ImageIO.read($("canvas[role='img']").screenshot());
-        assertFalse(new ScreenDiffResult(
-                actual,
-                expected
-        ));
+        new MainPage().checkStatisticImage(expectedStatisticImage);
     }
 
     @User(
@@ -146,17 +137,13 @@ public class SpendingWebTest {
             )
     )
     @ScreenShotTest(value = "img/clear-stat.png")
-    void checkStatComponentAfterDeleteSpendTest(UserJson user, BufferedImage expected) throws IOException {
+    void checkStatComponentAfterDeleteSpendTest(UserJson user, BufferedImage expectedStatisticImage) throws IOException {
         Selenide.open(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getSpendingTable()
                 .deleteSpending("Обучение Advanced 2.0");
-        BufferedImage actual = ImageIO.read($("canvas[role='img']").screenshot());
-        assertFalse(new ScreenDiffResult(
-                actual,
-                expected
-        ));
+        new MainPage().checkStatisticImage(expectedStatisticImage);
     }
 
     @User(
@@ -167,7 +154,7 @@ public class SpendingWebTest {
             )
     )
     @ScreenShotTest(value = "img/edit-stat.png")
-    void checkStatComponentAfterEditSpendTest(UserJson user, BufferedImage expected) throws IOException, InterruptedException {
+    void checkStatComponentAfterEditSpendTest(UserJson user, BufferedImage expectedStatisticImage) throws IOException, InterruptedException {
         Selenide.open(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
@@ -177,11 +164,7 @@ public class SpendingWebTest {
                 .saveSpending();
         new MainPage().checkStatisticCells(List.of("Обучение 80000 ₽"));
         Thread.sleep(1000);
-        BufferedImage actual = ImageIO.read($("canvas[role='img']").screenshot());
-        assertFalse(new ScreenDiffResult(
-                actual,
-                expected
-        ));
+        new MainPage().checkStatisticImage(expectedStatisticImage);
     }
 
     @User(
@@ -209,16 +192,12 @@ public class SpendingWebTest {
             }
     )
     @ScreenShotTest(value = "img/archived-stat.png")
-    void checkStatComponentAfterArchivedCategoryTest(UserJson user, BufferedImage expected) throws IOException, InterruptedException {
+    void checkStatComponentAfterArchivedCategoryTest(UserJson user, BufferedImage expectedStatisticImage) throws IOException, InterruptedException {
         Selenide.open(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage());
         new MainPage().checkStatisticCells(List.of("Обучение 1000 ₽", "Archived 3100 ₽"));
         Thread.sleep(1000);
-        BufferedImage actual = ImageIO.read($("canvas[role='img']").screenshot());
-        assertFalse(new ScreenDiffResult(
-                actual,
-                expected
-        ));
+        new MainPage().checkStatisticImage(expectedStatisticImage);
     }
 }
