@@ -1,6 +1,7 @@
 package guru.qa.niffler.api.core;
 
 import guru.qa.niffler.config.Config;
+import io.qameta.allure.okhttp3.AllureOkHttp3;
 import okhttp3.Interceptor;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
