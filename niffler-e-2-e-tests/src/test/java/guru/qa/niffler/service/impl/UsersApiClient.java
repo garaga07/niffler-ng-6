@@ -8,6 +8,7 @@ import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.rest.TestData;
 import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.service.UsersClient;
+import io.qameta.allure.Step;
 import org.jetbrains.annotations.NotNull;
 import retrofit2.Response;
 
@@ -33,6 +34,7 @@ public class UsersApiClient implements UsersClient {
 
   @NotNull
   @Override
+  @Step("Crete user using API")
   public UserJson createUser(String username, String password) {
     try {
       authApi.requestRegisterForm().execute();
@@ -53,6 +55,7 @@ public class UsersApiClient implements UsersClient {
     }
   }
 
+  @Step("Retrieve all users using API")
   @Nonnull
   public List<UserJson> allUsers(@Nonnull String username, @Nullable String searchQuery) {
     final Response<List<UserJson>> response;
@@ -68,6 +71,7 @@ public class UsersApiClient implements UsersClient {
             : Collections.emptyList();
   }
 
+  @Step("Add income invitations using API")
   @Override
   public void addIncomeInvitation(UserJson targetUser, int count) {
     if (count > 0) {
@@ -94,6 +98,7 @@ public class UsersApiClient implements UsersClient {
     }
   }
 
+  @Step("Add outcome invitations using API")
   @Override
   public void addOutcomeInvitation(UserJson targetUser, int count) {
     if (count > 0) {
@@ -120,6 +125,7 @@ public class UsersApiClient implements UsersClient {
     }
   }
 
+  @Step("Add friends using API")
   @Override
   public void addFriend(UserJson targetUser, int count) {
     if (count > 0) {

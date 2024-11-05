@@ -56,6 +56,7 @@ public abstract class RestClient {
       }
     }
     okHttpBuilder.addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(loggingLevel));
+    okHttpBuilder.addNetworkInterceptor(new AllureOkHttp3());
     okHttpBuilder.cookieJar(
         new JavaNetCookieJar(
             new CookieManager(
