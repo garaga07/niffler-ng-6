@@ -24,16 +24,20 @@ public class NonStaticBrowsersExtension implements
     // ThreadLocal для хранения драйвера для каждого теста
     private static final ThreadLocal<SelenideDriver> driverThreadLocal = ThreadLocal.withInitial(() -> new SelenideDriver(SelenideUtils.chromeConfig));
 
+    // Статический блок инициализации для настройки AllureSelenide
+    static {
+        SelenideLogger.addListener("Allure-selenide", new AllureSelenide()
+                .savePageSource(false)
+                .screenshots(false)
+        );
+    }
+
     public static SelenideDriver getDriver() {
         return driverThreadLocal.get();
     }
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
-        SelenideLogger.addListener("Allure-selenide", new AllureSelenide()
-                .savePageSource(false)
-                .screenshots(false)
-        );
         // Инициализация драйвера при старте каждого теста
         driverThreadLocal.set(new SelenideDriver(SelenideUtils.chromeConfig));
     }

@@ -1,7 +1,9 @@
-package guru.qa.niffler.utils;
+package guru.qa.niffler.jupiter.converters;
 
 import com.codeborne.selenide.SelenideConfig;
 import com.codeborne.selenide.SelenideDriver;
+import guru.qa.niffler.utils.Browser;
+import guru.qa.niffler.utils.SelenideUtils;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.converter.ArgumentConversionException;
 import org.junit.jupiter.params.converter.ArgumentConverter;

@@ -16,24 +16,23 @@ import org.openqa.selenium.TakesScreenshot;
 import java.io.ByteArrayInputStream;
 
 public class BrowserExtension implements
-    BeforeEachCallback,
     AfterEachCallback,
     TestExecutionExceptionHandler,
     LifecycleMethodExecutionExceptionHandler {
+
+  // Статический блок для установки AllureSelenide один раз
+  static {
+    SelenideLogger.addListener("Allure-selenide", new AllureSelenide()
+            .savePageSource(false)
+            .screenshots(false)
+    );
+  }
 
   @Override
   public void afterEach(ExtensionContext context) throws Exception {
     if (WebDriverRunner.hasWebDriverStarted()) {
       Selenide.closeWebDriver();
     }
-  }
-
-  @Override
-  public void beforeEach(ExtensionContext context) throws Exception {
-    SelenideLogger.addListener("Allure-selenide", new AllureSelenide()
-        .savePageSource(false)
-        .screenshots(false)
-    );
   }
 
   @Override
