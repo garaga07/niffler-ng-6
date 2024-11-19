@@ -24,7 +24,7 @@ public class AuthApiClient {
                 "code",
                 "client",
                 "openid",
-                CFG.frontUrl() + "/authorized",
+                CFG.frontUrl() + "authorized",
                 codeChallenge,
                 "S256"
         ).execute();
@@ -79,7 +79,7 @@ public class AuthApiClient {
     public String token(String code, String codeVerifier) {
         Response<JsonNode> response = authApi.token(
                 "client",
-                CFG.frontUrl() + "/authorized",
+                CFG.frontUrl() + "authorized",
                 "authorization_code",
                 code,
                 codeVerifier
