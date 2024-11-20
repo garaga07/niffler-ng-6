@@ -12,6 +12,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface SpendApi {
@@ -27,9 +28,9 @@ public interface SpendApi {
 
   @GET("internal/spends/all")
   Call<List<SpendJson>> allSpends(@Query("username") String username,
-                                  @Query("filterCurrency") CurrencyValues filterCurrency,
-                                  @Query("from") String from,
-                                  @Query("to") String to);
+                                  @Query("filterCurrency") @Nullable CurrencyValues filterCurrency,
+                                  @Query("from") @Nullable String from,
+                                  @Query("to") @Nullable String to);
 
   @DELETE("internal/spends/remove")
   Call<Void> removeSpends(@Query("username") String username, @Query("ids") List<String> ids);
