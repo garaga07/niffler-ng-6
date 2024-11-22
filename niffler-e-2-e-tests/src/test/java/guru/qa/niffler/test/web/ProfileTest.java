@@ -26,15 +26,10 @@ public class ProfileTest {
                     archived = true
             )
     )
+    @ApiLogin
     @Test
     void archivedCategoryShouldPresentInCategoriesList(UserJson user) {
         final String categoryName = user.testData().categoryDescriptions()[0];
-
-        Selenide.open(LoginPage.URL, LoginPage.class)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded();
-
         Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .checkArchivedCategoryExists(categoryName);
     }
@@ -44,15 +39,10 @@ public class ProfileTest {
                     archived = false
             )
     )
+    @ApiLogin
     @Test
     void activeCategoryShouldPresentInCategoriesList(UserJson user) {
         final String categoryName = user.testData().categoryDescriptions()[0];
-
-        Selenide.open(LoginPage.URL, LoginPage.class)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded();
-
         Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .checkCategoryExists(categoryName);
     }
@@ -73,36 +63,24 @@ public class ProfileTest {
     }
 
     @User
+    @ApiLogin
     @Test
-    void shouldUpdateProfileWithOnlyRequiredFields(UserJson user) {
+    void shouldUpdateProfileWithOnlyRequiredFields() {
         final String newName = randomName();
-
-        ProfilePage profilePage = Selenide.open(LoginPage.URL, LoginPage.class)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded()
-                .getHeader()
-                .toProfilePage()
+        ProfilePage profilePage = Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .setName(newName)
                 .submitProfile()
                 .checkAlertMessage("Profile successfully updated");
-
         Selenide.refresh();
-
         profilePage.checkName(newName);
     }
 
     @User
+    @ApiLogin
     @Test
-    void shouldAddNewCategory(UserJson user) {
+    void shouldAddNewCategory() {
         String newCategory = randomCategoryName();
-
-        Selenide.open(LoginPage.URL, LoginPage.class)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded()
-                .getHeader()
-                .toProfilePage()
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .addCategory(newCategory)
                 .checkAlertMessage("You've added new category:")
                 .checkCategoryExists(newCategory);
@@ -120,26 +98,18 @@ public class ProfileTest {
                     @Category(name = "Books")
             }
     )
+    @ApiLogin
     @Test
-    void shouldForbidAddingMoreThat8Categories(UserJson user) {
-        Selenide.open(LoginPage.URL, LoginPage.class)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded()
-                .getHeader()
-                .toProfilePage()
+    void shouldForbidAddingMoreThat8Categories() {
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .checkThatCategoryInputDisabled();
     }
 
     @User
+    @ApiLogin
     @ScreenShotTest(value = "img/profile-expected.png")
-    void checkProfileImageTest(UserJson user, BufferedImage expectedProfileImage) throws IOException {
-        Selenide.open(LoginPage.URL, LoginPage.class)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded()
-                .getHeader()
-                .toProfilePage()
+    void checkProfileImageTest(BufferedImage expectedProfileImage) throws IOException {
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .uploadPhotoFromClasspath("img/cat.png")
                 .submitProfile()
                 .checkProfileImage(expectedProfileImage);
