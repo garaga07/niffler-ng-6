@@ -1,4 +1,5 @@
 package guru.qa.niffler.condition;
+
 import com.codeborne.selenide.CheckResult;
 import com.codeborne.selenide.Driver;
 import com.codeborne.selenide.WebElementCondition;
@@ -6,13 +7,16 @@ import com.codeborne.selenide.WebElementsCondition;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.WebElement;
+
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import static com.codeborne.selenide.CheckResult.accepted;
 import static com.codeborne.selenide.CheckResult.rejected;
+
 @ParametersAreNonnullByDefault
 public class StatConditions {
     @Nonnull
@@ -34,6 +38,7 @@ public class StatConditions {
     public static WebElementsCondition color(@Nonnull Color... expectedColors) {
         return new WebElementsCondition() {
             private final String expectedRgba = Arrays.stream(expectedColors).map(c -> c.rgb).toList().toString();
+
             @NotNull
             @Override
             public CheckResult check(Driver driver, List<WebElement> elements) {
@@ -64,6 +69,7 @@ public class StatConditions {
                 }
                 return accepted();
             }
+
             @Override
             public String toString() {
                 return expectedRgba;

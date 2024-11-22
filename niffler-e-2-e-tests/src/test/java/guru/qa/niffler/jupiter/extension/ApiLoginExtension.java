@@ -26,6 +26,7 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
     private static final Config CFG = Config.getInstance();
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(ApiLoginExtension.class);
     private final AuthApiClient authApiClient = new AuthApiClient();
+    UsersApiClient usersClient = new UsersApiClient();
     private final boolean setupBrowser;
 
     private ApiLoginExtension(boolean setupBrowser) {
@@ -63,9 +64,6 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
                         UserExtension.setUser(fakeUser);
                         userToLogin = fakeUser;
                     }
-
-                    // Подключаем UsersApiClient
-                    UsersApiClient usersClient = new UsersApiClient();
 
                     // Получаем друзей и фильтруем по состоянию
                     List<UserJson> friendsList = usersClient.friends(userToLogin.username(), null);
