@@ -22,7 +22,7 @@ import java.util.List;
 
 import static guru.qa.niffler.model.rest.FriendState.*;
 
-public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver {
+public class ApiLoginExtension implements BeforeTestExecutionCallback, ParameterResolver {
     private static final Config CFG = Config.getInstance();
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(ApiLoginExtension.class);
     private final AuthApiClient authApiClient = new AuthApiClient();
@@ -37,12 +37,12 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
         this.setupBrowser = true;
     }
 
-    public static ApiLoginExtension restApiLoginExtension() {
+    public static ApiLoginExtension rest() {
         return new ApiLoginExtension(false);
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) {
+    public void beforeTestExecution(ExtensionContext context) {
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), ApiLogin.class)
                 .ifPresent(apiLogin -> {
                     final UserJson userToLogin;
@@ -114,10 +114,7 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
                         Selenide.open(CFG.frontUrl());
                         Selenide.localStorage().setItem("id_token", getToken());
                         WebDriverRunner.getWebDriver().manage().addCookie(
-                                new Cookie(
-                                        "JSESSIONID",
-                                        ThreadSafeCookieStore.INSTANCE.cookieValue("JSESSIONID")
-                                )
+                                getJsessionIdCookie()
                         );
                         Selenide.open(MainPage.URL, MainPage.class).checkThatPageLoaded();
                     }
@@ -133,7 +130,7 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
 
     @Override
     public String resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return getToken();
+        return "Bearer " + getToken();
     }
 
     public static void setToken(String token) {
