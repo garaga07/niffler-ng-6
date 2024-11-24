@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,10 +35,54 @@ class UserControllerTest {
     usersRepository.save(userDataEntity);
 
     mockMvc.perform(get("/internal/users/current")
-            .contentType(MediaType.APPLICATION_JSON)
-            .param("username", "dima")
-        )
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.username").value("dima"));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .param("username", "dima")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.username").value("dima"));
+  }
+
+  @Test
+  void allUsersEndpoint() throws Exception {
+    UserEntity user1 = new UserEntity();
+    user1.setUsername("dima");
+    user1.setCurrency(CurrencyValues.RUB);
+    usersRepository.save(user1);
+
+    UserEntity user2 = new UserEntity();
+    user2.setUsername("anna");
+    user2.setCurrency(CurrencyValues.USD);
+    usersRepository.save(user2);
+
+    mockMvc.perform(get("/internal/users/all")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .param("username", "")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].username").value("anna"))
+            .andExpect(jsonPath("$[1].username").value("dima"));
+  }
+
+  @Test
+  void updateUserInfoEndpoint() throws Exception {
+    UserEntity userDataEntity = new UserEntity();
+    userDataEntity.setUsername("dima");
+    userDataEntity.setCurrency(CurrencyValues.RUB);
+    usersRepository.save(userDataEntity);
+
+    String updatedUserJson = """
+        {
+            "username": "dima",
+            "currency": "USD"
+        }
+        """;
+
+    mockMvc.perform(post("/internal/users/update")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(updatedUserJson)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.username").value("dima"))
+            .andExpect(jsonPath("$.currency").value("USD"));
   }
 }
