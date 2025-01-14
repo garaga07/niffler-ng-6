@@ -149,10 +149,6 @@ public class SpendingWebTest {
     }
 
     @User(
-            categories = {
-                    @Category(name = "Обучение"),
-                    @Category(name = "Развлечения")
-            },
             spendings = {
                     @Spending(
                             category = "Обучение",
@@ -179,10 +175,6 @@ public class SpendingWebTest {
     }
 
     @User(
-            categories = {
-                    @Category(name = "Обучение"),
-                    @Category(name = "Развлечения")
-            },
             spendings = {
                     @Spending(
                             category = "Обучение",
@@ -208,10 +200,6 @@ public class SpendingWebTest {
     }
 
     @User(
-            categories = {
-                    @Category(name = "Обучение"),
-                    @Category(name = "Развлечения")
-            },
             spendings = {
                     @Spending(
                             category = "Обучение",

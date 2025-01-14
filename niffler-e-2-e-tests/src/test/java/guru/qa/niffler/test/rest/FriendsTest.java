@@ -6,7 +6,7 @@ import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.RestTest;
 import guru.qa.niffler.jupiter.extension.ApiLoginExtension;
 import guru.qa.niffler.model.rest.FriendJson;
-import guru.qa.niffler.model.rest.FriendState;
+import guru.qa.niffler.model.rest.FriendshipStatus;
 import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.service.impl.GatewayApiClient;
 import org.junit.jupiter.api.Assertions;
@@ -34,10 +34,10 @@ public class FriendsTest {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(3, result.size());
         final List<UserJson> friendsFromResponse = result.stream().filter(
-                u -> u.friendState() == FriendState.FRIEND
+                u -> u.friendshipStatus() == FriendshipStatus.FRIEND
         ).toList();
         final List<UserJson> invitationsFromResponse = result.stream().filter(
-                u -> u.friendState() == FriendState.INVITE_RECEIVED
+                u -> u.friendshipStatus() == FriendshipStatus.INVITE_RECEIVED
         ).toList();
         Assertions.assertEquals(2, friendsFromResponse.size());
         Assertions.assertEquals(1, invitationsFromResponse.size());
@@ -69,12 +69,12 @@ public class FriendsTest {
 
         // Список друзей
         final List<UserJson> friendsFromResponse = result.stream()
-                .filter(u -> u.friendState() == FriendState.FRIEND)
+                .filter(u -> u.friendshipStatus() == FriendshipStatus.FRIEND)
                 .toList();
 
         // Входящие заявки
         final List<UserJson> invitationsFromResponse = result.stream()
-                .filter(u -> u.friendState() == FriendState.INVITE_RECEIVED)
+                .filter(u -> u.friendshipStatus() == FriendshipStatus.INVITE_RECEIVED)
                 .toList();
 
         Assertions.assertEquals(2, friendsFromResponse.size());
@@ -113,7 +113,7 @@ public class FriendsTest {
 
         final List<UserJson> friendsAfter = gatewayApiClient.allFriends(token, null);
         Assertions.assertEquals(1, friendsAfter.size());
-        Assertions.assertEquals(FriendState.FRIEND, friendsAfter.getFirst().friendState());
+        Assertions.assertEquals(FriendshipStatus.FRIEND, friendsAfter.getFirst().friendshipStatus());
     }
 
     @User(incomeInvitations = 1)
@@ -141,7 +141,7 @@ public class FriendsTest {
         gatewayApiClient.sendInvitation(token, newFriend);
 
         final List<UserJson> outgoingInvitations = gatewayApiClient.allUsers(token, null).stream()
-                .filter(u -> u.friendState() == FriendState.INVITE_SENT)
+                .filter(u -> u.friendshipStatus() == FriendshipStatus.INVITE_SENT)
                 .toList();
 
         Assertions.assertEquals(1, outgoingInvitations.size());

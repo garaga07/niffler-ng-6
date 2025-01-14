@@ -9,8 +9,11 @@ import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,11 +39,11 @@ public class RestUserDataClient implements UserDataClient {
   @Override
   public UserJson currentUser(@Nonnull String username) {
     return Optional.ofNullable(
-        restTemplate.getForObject(
-            nifflerUserdataApiUri + "/users/current?username={username}",
-            UserJson.class,
-            username
-        )
+            restTemplate.getForObject(
+                    nifflerUserdataApiUri + "/users/current?username={username}",
+                    UserJson.class,
+                    username
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST UserJson response is given [/users/current/ Route]"));
   }
 
@@ -48,11 +51,11 @@ public class RestUserDataClient implements UserDataClient {
   @Override
   public UserJson updateUserInfo(@Nonnull UserJson user) {
     return Optional.ofNullable(
-        restTemplate.postForObject(
-            nifflerUserdataApiUri + "/users/update",
-            user,
-            UserJson.class
-        )
+            restTemplate.postForObject(
+                    nifflerUserdataApiUri + "/users/update",
+                    user,
+                    UserJson.class
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST UserJson response is given [/users/update/ Route]"));
   }
 
@@ -60,14 +63,14 @@ public class RestUserDataClient implements UserDataClient {
   @Override
   public List<UserJson> allUsers(@Nonnull String username, @Nullable String searchQuery) {
     return Arrays.asList(
-        Optional.ofNullable(
-            restTemplate.getForObject(
-                nifflerUserdataApiUri + "/users/all?username={username}&searchQuery={searchQuery}",
-                UserJson[].class,
-                username,
-                searchQuery
-            )
-        ).orElseThrow(() -> new NoRestResponseException("No REST UserJson[] response is given [/users/all/ Route]"))
+            Optional.ofNullable(
+                    restTemplate.getForObject(
+                            nifflerUserdataApiUri + "/users/all?username={username}&searchQuery={searchQuery}",
+                            UserJson[].class,
+                            username,
+                            searchQuery
+                    )
+            ).orElseThrow(() -> new NoRestResponseException("No REST UserJson[] response is given [/users/all/ Route]"))
     );
   }
 
@@ -75,29 +78,32 @@ public class RestUserDataClient implements UserDataClient {
   @Nonnull
   @Override
   public Page<UserJson> allUsers(@Nonnull String username, @Nonnull Pageable pageable, @Nullable String searchQuery) {
-    return Optional.ofNullable(
-        restTemplate.getForObject(
+    ResponseEntity<RestPage<UserJson>> response = restTemplate.exchange(
             nifflerUserdataApiUri + "/v2/users/all?username={username}&searchQuery={searchQuery}"
-                + new HttpQueryPaginationAndSort(pageable),
-            RestPage.class,
+                    + new HttpQueryPaginationAndSort(pageable),
+            HttpMethod.GET,
+            null,
+            new ParameterizedTypeReference<RestPage<UserJson>>() {
+            },
             username,
             searchQuery
-        )
-    ).orElseThrow(() -> new NoRestResponseException("No REST Page<UserJson> response is given [/v2/users/all/ Route]"));
+    );
+    return Optional.ofNullable(response.getBody())
+            .orElseThrow(() -> new NoRestResponseException("No REST Page<UserJson> response is given [/v2/users/all/ Route]"));
   }
 
   @Nonnull
   @Override
   public List<UserJson> friends(@Nonnull String username, @Nullable String searchQuery) {
     return Arrays.asList(
-        Optional.ofNullable(
-            restTemplate.getForObject(
-                nifflerUserdataApiUri + "/friends/all?username={username}&searchQuery={searchQuery}",
-                UserJson[].class,
-                username,
-                searchQuery
-            )
-        ).orElseThrow(() -> new NoRestResponseException("No REST UserJson[] response is given [/friends/all/ Route]"))
+            Optional.ofNullable(
+                    restTemplate.getForObject(
+                            nifflerUserdataApiUri + "/friends/all?username={username}&searchQuery={searchQuery}",
+                            UserJson[].class,
+                            username,
+                            searchQuery
+                    )
+            ).orElseThrow(() -> new NoRestResponseException("No REST UserJson[] response is given [/friends/all/ Route]"))
     );
   }
 
@@ -105,28 +111,31 @@ public class RestUserDataClient implements UserDataClient {
   @Nonnull
   @Override
   public Page<UserJson> friends(@Nonnull String username, @Nonnull Pageable pageable, @Nullable String searchQuery) {
-    return Optional.ofNullable(
-        restTemplate.getForObject(
+    ResponseEntity<RestPage<UserJson>> response = restTemplate.exchange(
             nifflerUserdataApiUri + "/v2/friends/all?username={username}&searchQuery={searchQuery}"
-                + new HttpQueryPaginationAndSort(pageable),
-            RestPage.class,
+                    + new HttpQueryPaginationAndSort(pageable),
+            HttpMethod.GET,
+            null,
+            new ParameterizedTypeReference<RestPage<UserJson>>() {
+            },
             username,
             searchQuery
-        )
-    ).orElseThrow(() -> new NoRestResponseException("No REST Page<UserJson> response is given [/v2/friends/all/ Route]"));
+    );
+    return Optional.ofNullable(response.getBody())
+            .orElseThrow(() -> new NoRestResponseException("No REST Page<UserJson> response is given [/v2/friends/all/ Route]"));
   }
 
   @Nonnull
   @Override
   public UserJson sendInvitation(@Nonnull String username, @Nonnull String targetUsername) {
     return Optional.ofNullable(
-        restTemplate.postForObject(
-            nifflerUserdataApiUri + "/invitations/send?username={username}&targetUsername={targetUsername}",
-            null,
-            UserJson.class,
-            username,
-            targetUsername
-        )
+            restTemplate.postForObject(
+                    nifflerUserdataApiUri + "/invitations/send?username={username}&targetUsername={targetUsername}",
+                    null,
+                    UserJson.class,
+                    username,
+                    targetUsername
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST UserJson response is given [/invitations/send/ Route]"));
   }
 
@@ -134,13 +143,13 @@ public class RestUserDataClient implements UserDataClient {
   @Override
   public UserJson acceptInvitation(@Nonnull String username, @Nonnull String targetUsername) {
     return Optional.ofNullable(
-        restTemplate.postForObject(
-            nifflerUserdataApiUri + "/invitations/accept?username={username}&targetUsername={targetUsername}",
-            null,
-            UserJson.class,
-            username,
-            targetUsername
-        )
+            restTemplate.postForObject(
+                    nifflerUserdataApiUri + "/invitations/accept?username={username}&targetUsername={targetUsername}",
+                    null,
+                    UserJson.class,
+                    username,
+                    targetUsername
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST UserJson response is given [/invitations/accept/ Route]"));
   }
 
@@ -148,22 +157,22 @@ public class RestUserDataClient implements UserDataClient {
   @Override
   public UserJson declineInvitation(@Nonnull String username, @Nonnull String targetUsername) {
     return Optional.ofNullable(
-        restTemplate.postForObject(
-            nifflerUserdataApiUri + "/invitations/decline?username={username}&targetUsername={targetUsername}",
-            null,
-            UserJson.class,
-            username,
-            targetUsername
-        )
+            restTemplate.postForObject(
+                    nifflerUserdataApiUri + "/invitations/decline?username={username}&targetUsername={targetUsername}",
+                    null,
+                    UserJson.class,
+                    username,
+                    targetUsername
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST UserJson response is given [/invitations/decline/ Route]"));
   }
 
   @Override
   public void removeFriend(@Nonnull String username, @Nonnull String targetUsername) {
     restTemplate.delete(
-        nifflerUserdataApiUri + "/friends/remove?username={username}&targetUsername={targetUsername}",
-        username,
-        targetUsername
+            nifflerUserdataApiUri + "/friends/remove?username={username}&targetUsername={targetUsername}",
+            username,
+            targetUsername
     );
   }
 }

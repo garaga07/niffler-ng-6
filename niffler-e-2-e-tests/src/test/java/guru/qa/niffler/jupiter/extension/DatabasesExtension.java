@@ -16,7 +16,7 @@ public class DatabasesExtension implements SuiteExtension {
     @Override
     public void beforeSuite(ExtensionContext context) {
         // Очищаем все таблицы перед началом тестов
-//    clearDatabaseTables();
+        clearDatabaseTables();
     }
 
     @Override

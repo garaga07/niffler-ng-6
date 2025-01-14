@@ -2,11 +2,11 @@ plugins {
     id 'org.springframework.boot' version '3.3.2'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'com.google.cloud.tools.jib' version '3.4.1'
-    id 'com.github.edeandrea.xjc-generation' version "1.6"
+    id 'com.github.edeandrea.xjc-generation' version '1.6'
 }
 
 group = 'guru.qa'
-version = '2.0.1'
+version = '2.0.2'
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -55,7 +55,10 @@ jib {
     container {
         ports = ['8089']
         jvmFlags = ["-Dspring.profiles.active=${System.env.PROFILE}"]
-        environment = ['VAULT_TOKEN': "${System.env.VAULT_TOKEN}".toString()]
+        environment = [
+                'VAULT_TOKEN': "${System.env.VAULT_TOKEN}".toString(),
+                'TZ'         : 'Europe/Moscow'
+        ]
         creationTime = 'USE_CURRENT_TIMESTAMP'
         labels = [
                 'maintainer': 'Dmitrii Tuchs @dtuchs',

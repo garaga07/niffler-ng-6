@@ -27,8 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
-import static guru.qa.niffler.model.FriendState.FRIEND;
-import static guru.qa.niffler.model.FriendState.INVITE_SENT;
+import static guru.qa.niffler.model.FriendshipStatus.FRIEND;
+import static guru.qa.niffler.model.FriendshipStatus.INVITE_SENT;
 
 @Component
 public class UserService {
@@ -47,35 +47,35 @@ public class UserService {
   @KafkaListener(topics = "users", groupId = "userdata")
   public void listener(@Payload UserJson user, ConsumerRecord<String, UserJson> cr) {
     userRepository.findByUsername(user.username())
-        .ifPresentOrElse(
-            u -> LOG.info("### User already exist in DB, kafka event will be skipped: {}", cr.toString()),
-            () -> {
-              LOG.info("### Kafka consumer record: {}", cr.toString());
+            .ifPresentOrElse(
+                    u -> LOG.info("### User already exist in DB, kafka event will be skipped: {}", cr.toString()),
+                    () -> {
+                      LOG.info("### Kafka consumer record: {}", cr.toString());
 
-              UserEntity userDataEntity = new UserEntity();
-              userDataEntity.setUsername(user.username());
-              userDataEntity.setCurrency(DEFAULT_USER_CURRENCY);
-              UserEntity userEntity = userRepository.save(userDataEntity);
+                      UserEntity userDataEntity = new UserEntity();
+                      userDataEntity.setUsername(user.username());
+                      userDataEntity.setCurrency(DEFAULT_USER_CURRENCY);
+                      UserEntity userEntity = userRepository.save(userDataEntity);
 
-              LOG.info(
-                  "### User '{}' successfully saved to database with id: {}",
-                  user.username(),
-                  userEntity.getId()
-              );
-            }
-        );
+                      LOG.info(
+                              "### User '{}' successfully saved to database with id: {}",
+                              user.username(),
+                              userEntity.getId()
+                      );
+                    }
+            );
   }
 
   @Transactional
   public @Nonnull
   UserJson update(@Nonnull UserJson user) {
     UserEntity userEntity = userRepository.findByUsername(user.username())
-        .orElseGet(() -> {
-          UserEntity emptyUser = new UserEntity();
-          emptyUser.setUsername(user.username());
-          emptyUser.setCurrency(user.currency() == null ? DEFAULT_USER_CURRENCY : user.currency());
-          return emptyUser;
-        });
+            .orElseGet(() -> {
+              UserEntity emptyUser = new UserEntity();
+              emptyUser.setUsername(user.username());
+              emptyUser.setCurrency(user.currency() == null ? DEFAULT_USER_CURRENCY : user.currency());
+              return emptyUser;
+            });
 
     userEntity.setFullname(user.fullname());
     userEntity.setCurrency(user.currency() == null ? DEFAULT_USER_CURRENCY : user.currency());
@@ -91,17 +91,17 @@ public class UserService {
   public @Nonnull
   UserJson getCurrentUser(@Nonnull String username) {
     return userRepository.findByUsername(username).map(UserJson::fromEntity)
-        .orElseGet(() -> new UserJson(
-            null,
-            username,
-            null,
-            null,
-            null,
-            DEFAULT_USER_CURRENCY,
-            null,
-            null,
-            null
-        ));
+            .orElseGet(() -> new UserJson(
+                    null,
+                    username,
+                    null,
+                    null,
+                    null,
+                    DEFAULT_USER_CURRENCY,
+                    null,
+                    null,
+                    null
+            ));
   }
 
   @Transactional(readOnly = true)
@@ -109,12 +109,12 @@ public class UserService {
   List<UserJsonBulk> allUsers(@Nonnull String username,
                               @Nullable String searchQuery) {
     List<UserWithStatus> usersFromDb = searchQuery == null
-        ? userRepository.findByUsernameNot(username)
-        : userRepository.findByUsernameNot(username, searchQuery);
+            ? userRepository.findByUsernameNot(username)
+            : userRepository.findByUsernameNot(username, searchQuery);
 
     return usersFromDb.stream()
-        .map(UserJsonBulk::fromUserEntityProjection)
-        .toList();
+            .map(UserJsonBulk::fromUserEntityProjection)
+            .toList();
   }
 
   @Transactional(readOnly = true)
@@ -123,8 +123,8 @@ public class UserService {
                               @Nonnull Pageable pageable,
                               @Nullable String searchQuery) {
     Page<UserWithStatus> usersFromDb = searchQuery == null
-        ? userRepository.findByUsernameNot(username, pageable)
-        : userRepository.findByUsernameNot(username, searchQuery, pageable);
+            ? userRepository.findByUsernameNot(username, pageable)
+            : userRepository.findByUsernameNot(username, searchQuery, pageable);
 
     return usersFromDb.map(UserJsonBulk::fromUserEntityProjection);
   }
@@ -134,12 +134,12 @@ public class UserService {
   List<UserJsonBulk> friends(@Nonnull String username,
                              @Nullable String searchQuery) {
     List<UserWithStatus> usersFromDb = searchQuery == null
-        ? userRepository.findFriends(getRequiredUser(username))
-        : userRepository.findFriends(getRequiredUser(username), searchQuery);
+            ? userRepository.findFriends(getRequiredUser(username))
+            : userRepository.findFriends(getRequiredUser(username), searchQuery);
 
     return usersFromDb.stream()
-        .map(UserJsonBulk::fromFriendEntityProjection)
-        .toList();
+            .map(UserJsonBulk::fromFriendEntityProjection)
+            .toList();
   }
 
   @Transactional(readOnly = true)
@@ -148,8 +148,8 @@ public class UserService {
                              @Nonnull Pageable pageable,
                              @Nullable String searchQuery) {
     Page<UserWithStatus> usersFromDb = searchQuery == null
-        ? userRepository.findFriends(getRequiredUser(username), pageable)
-        : userRepository.findFriends(getRequiredUser(username), searchQuery, pageable);
+            ? userRepository.findFriends(getRequiredUser(username), pageable)
+            : userRepository.findFriends(getRequiredUser(username), searchQuery, pageable);
 
     return usersFromDb.map(UserJsonBulk::fromFriendEntityProjection);
   }
@@ -176,10 +176,10 @@ public class UserService {
     UserEntity targetUser = getRequiredUser(targetUsername);
 
     FriendshipEntity invite = currentUser.getFriendshipAddressees()
-        .stream()
-        .filter(fe -> fe.getRequester().equals(targetUser))
-        .findFirst()
-        .orElseThrow(() -> new NotFoundException("Can`t find invitation from username: '" + targetUsername + "'"));
+            .stream()
+            .filter(fe -> fe.getRequester().equals(targetUser))
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException("Can`t find invitation from username: '" + targetUsername + "'"));
 
     invite.setStatus(FriendshipStatus.ACCEPTED);
     currentUser.addFriends(FriendshipStatus.ACCEPTED, targetUser);
@@ -228,7 +228,7 @@ public class UserService {
   @Nonnull
   UserEntity getRequiredUser(@Nonnull String username) {
     return userRepository.findByUsername(username).orElseThrow(
-        () -> new NotFoundException("Can`t find user by username: '" + username + "'")
+            () -> new NotFoundException("Can`t find user by username: '" + username + "'")
     );
   }
 }

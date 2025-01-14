@@ -20,7 +20,7 @@ import org.openqa.selenium.Cookie;
 
 import java.util.List;
 
-import static guru.qa.niffler.model.rest.FriendState.*;
+import static guru.qa.niffler.model.rest.FriendshipStatus.*;
 
 public class ApiLoginExtension implements BeforeTestExecutionCallback, ParameterResolver {
     private static final Config CFG = Config.getInstance();
@@ -68,18 +68,18 @@ public class ApiLoginExtension implements BeforeTestExecutionCallback, Parameter
                     // Получаем друзей и фильтруем по состоянию
                     List<UserJson> friendsList = usersClient.friends(userToLogin.username(), null);
                     List<UserJson> friends = friendsList.stream()
-                            .filter(user -> user.friendState() == FRIEND)
+                            .filter(user -> user.friendshipStatus() == FRIEND)
                             .toList();
 
                     // Получаем входящие приглашения
                     List<UserJson> incomeInvitations = friendsList.stream()
-                            .filter(user -> user.friendState() == INVITE_RECEIVED)
+                            .filter(user -> user.friendshipStatus() == INVITE_RECEIVED)
                             .toList();
 
                     // Получаем исходящие приглашения
                     List<UserJson> allUsersList = usersClient.allUsers(userToLogin.username(), null);
                     List<UserJson> outcomeInvitations = allUsersList.stream()
-                            .filter(user -> user.friendState() == INVITE_SENT)
+                            .filter(user -> user.friendshipStatus() == INVITE_SENT)
                             .toList();
 
                     // Добавляем данные в TestData пользователя

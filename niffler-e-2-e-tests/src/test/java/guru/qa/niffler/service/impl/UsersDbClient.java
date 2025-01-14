@@ -11,7 +11,7 @@ import guru.qa.niffler.data.repository.impl.AuthUserRepositoryJdbc;
 import guru.qa.niffler.data.repository.impl.UserdataUserRepositoryJdbc;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.rest.CurrencyValues;
-import guru.qa.niffler.model.rest.FriendState;
+import guru.qa.niffler.model.rest.FriendshipStatus;
 import guru.qa.niffler.model.rest.TestData;
 import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.service.UsersClient;
@@ -83,7 +83,7 @@ public class UsersDbClient implements UsersClient {
                                                         }
                                                 )
                                         ),
-                                        FriendState.INVITE_RECEIVED
+                                        FriendshipStatus.INVITE_RECEIVED
                                 )
                         );
             }
@@ -114,7 +114,7 @@ public class UsersDbClient implements UsersClient {
                                                         }
                                                 )
                                         ),
-                                        FriendState.INVITE_RECEIVED
+                                        FriendshipStatus.INVITE_RECEIVED
                                 )
                         );
             }
@@ -145,7 +145,7 @@ public class UsersDbClient implements UsersClient {
                                                         }
                                                 )
                                         ),
-                                        FriendState.FRIEND
+                                        FriendshipStatus.FRIEND
                                 )
                         );
             }
