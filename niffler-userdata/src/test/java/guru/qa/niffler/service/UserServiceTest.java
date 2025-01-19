@@ -1,11 +1,13 @@
 package guru.qa.niffler.service;
 
 import guru.qa.niffler.data.CurrencyValues;
+import guru.qa.niffler.data.FriendshipEntity;
 import guru.qa.niffler.data.FriendshipStatus;
 import guru.qa.niffler.data.UserEntity;
 import guru.qa.niffler.data.projection.UserWithStatus;
 import guru.qa.niffler.data.repository.UserRepository;
 import guru.qa.niffler.ex.NotFoundException;
+import guru.qa.niffler.ex.SameUsernameException;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.model.UserJsonBulk;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,9 +22,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static guru.qa.niffler.model.FriendshipStatus.FRIEND;
 import static guru.qa.niffler.model.FriendshipStatus.INVITE_SENT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -179,5 +181,166 @@ class UserServiceTest {
                     FriendshipStatus.ACCEPTED
             )
     );
+  }
+
+  @Test
+  void allUsersShouldReturnUsersWithSmallPhotos(@Mock UserRepository userRepository) {
+    List<UserWithStatus> mockUsers = List.of(
+            new UserWithStatus(UUID.randomUUID(), "user1", CurrencyValues.RUB, "User One", "smallPhoto".getBytes(), FriendshipStatus.PENDING),
+            new UserWithStatus(UUID.randomUUID(), "user2", CurrencyValues.RUB, "User Two", null, FriendshipStatus.ACCEPTED)
+    );
+
+    when(userRepository.findByUsernameNot(eq(mainTestUserName))).thenReturn(mockUsers);
+    userService = new UserService(userRepository);
+
+    List<UserJsonBulk> result = userService.allUsers(mainTestUserName, null);
+
+    assertEquals(2, result.size());
+    assertEquals("smallPhoto", result.get(0).photoSmall());
+    assertNull(result.get(1).photoSmall());
+
+    verify(userRepository, times(1)).findByUsernameNot(eq(mainTestUserName));
+  }
+
+  @Test
+  void allUsersShouldHandleSearchQuery(@Mock UserRepository userRepository) {
+    String searchQuery = "user1";
+    List<UserWithStatus> mockUsers = List.of(
+            new UserWithStatus(UUID.randomUUID(), "user1", CurrencyValues.RUB, "User One", "photo".getBytes(), FriendshipStatus.PENDING)
+    );
+
+    when(userRepository.findByUsernameNot(eq(mainTestUserName), eq(searchQuery))).thenReturn(mockUsers);
+    userService = new UserService(userRepository);
+
+    List<UserJsonBulk> result = userService.allUsers(mainTestUserName, searchQuery);
+
+    assertEquals(1, result.size());
+    assertEquals("user1", result.getFirst().username());
+
+    verify(userRepository, times(1)).findByUsernameNot(eq(mainTestUserName), eq(searchQuery));
+  }
+
+  @Test
+  void allUsersShouldMapCorrectly(@Mock UserRepository userRepository) {
+    UserWithStatus userWithStatus = new UserWithStatus(UUID.randomUUID(), "user1", CurrencyValues.USD, "User Test", "smallPhoto".getBytes(), FriendshipStatus.PENDING);
+    when(userRepository.findByUsernameNot(eq(mainTestUserName))).thenReturn(List.of(userWithStatus));
+
+    userService = new UserService(userRepository);
+
+    List<UserJsonBulk> result = userService.allUsers(mainTestUserName, null);
+
+    UserJsonBulk mappedUser = result.getFirst();
+    assertEquals(userWithStatus.username(), mappedUser.username());
+    assertEquals(userWithStatus.fullname(), mappedUser.fullname());
+    assertEquals(userWithStatus.currency(), mappedUser.currency());
+    assertEquals("smallPhoto", mappedUser.photoSmall());
+
+    verify(userRepository, times(1)).findByUsernameNot(eq(mainTestUserName));
+  }
+
+  @Test
+  void shouldReturnExistingUserWhenFound(@Mock UserRepository userRepository) {
+    when(userRepository.findByUsername(eq(mainTestUserName)))
+            .thenReturn(Optional.of(mainTestUser));
+
+    userService = new UserService(userRepository);
+
+    UserJson result = userService.getCurrentUser(mainTestUserName);
+
+    assertEquals(mainTestUserUuid, result.id());
+    assertEquals(mainTestUserName, result.username());
+    assertEquals(CurrencyValues.RUB, result.currency());
+    verify(userRepository, times(1)).findByUsername(eq(mainTestUserName));
+  }
+
+  @Test
+  void shouldReturnDefaultUserWhenNotFound(@Mock UserRepository userRepository) {
+    when(userRepository.findByUsername(eq(notExistingUser)))
+            .thenReturn(Optional.empty());
+
+    userService = new UserService(userRepository);
+
+    UserJson result = userService.getCurrentUser(notExistingUser);
+
+    assertNull(result.id());
+    assertEquals(notExistingUser, result.username());
+    assertEquals(CurrencyValues.RUB, result.currency());
+    verify(userRepository, times(1)).findByUsername(eq(notExistingUser));
+  }
+
+  @Test
+  void shouldCreateFriendshipRequest(@Mock UserRepository userRepository) {
+    when(userRepository.findByUsername(eq(mainTestUserName))).thenReturn(Optional.of(mainTestUser));
+    when(userRepository.findByUsername(eq(secondTestUserName))).thenReturn(Optional.of(secondTestUser));
+
+    userService = new UserService(userRepository);
+
+    UserJson result = userService.createFriendshipRequest(mainTestUserName, secondTestUserName);
+
+    assertEquals(secondTestUserName, result.username());
+    assertEquals(INVITE_SENT, result.friendshipStatus());
+    verify(userRepository, times(1)).save(mainTestUser);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenCreatingFriendshipRequestToSelf(@Mock UserRepository userRepository) {
+    userService = new UserService(userRepository);
+
+    assertThrows(SameUsernameException.class,
+            () -> userService.createFriendshipRequest(mainTestUserName, mainTestUserName));
+  }
+
+  @Test
+  void shouldAcceptFriendshipRequest(@Mock UserRepository userRepository) {
+    FriendshipEntity invite = new FriendshipEntity();
+    invite.setRequester(secondTestUser);
+    invite.setStatus(FriendshipStatus.PENDING);
+    mainTestUser.getFriendshipAddressees().add(invite);
+
+    when(userRepository.findByUsername(eq(mainTestUserName))).thenReturn(Optional.of(mainTestUser));
+    when(userRepository.findByUsername(eq(secondTestUserName))).thenReturn(Optional.of(secondTestUser));
+
+    userService = new UserService(userRepository);
+
+    UserJson result = userService.acceptFriendshipRequest(mainTestUserName, secondTestUserName);
+
+    assertEquals(secondTestUserName, result.username());
+    assertEquals(FRIEND, result.friendshipStatus());
+    verify(userRepository, times(1)).save(mainTestUser);
+  }
+
+  @Test
+  void shouldDeclineFriendshipRequest(@Mock UserRepository userRepository) {
+    FriendshipEntity invite = new FriendshipEntity();
+    invite.setRequester(secondTestUser);
+    mainTestUser.getFriendshipAddressees().add(invite);
+
+    when(userRepository.findByUsername(eq(mainTestUserName))).thenReturn(Optional.of(mainTestUser));
+    when(userRepository.findByUsername(eq(secondTestUserName))).thenReturn(Optional.of(secondTestUser));
+
+    userService = new UserService(userRepository);
+
+    UserJson result = userService.declineFriendshipRequest(mainTestUserName, secondTestUserName);
+
+    assertEquals(secondTestUserName, result.username());
+    verify(userRepository, times(1)).save(mainTestUser);
+    verify(userRepository, times(1)).save(secondTestUser);
+  }
+
+  @Test
+  void shouldRemoveFriend(@Mock UserRepository userRepository) {
+    FriendshipEntity friend = new FriendshipEntity();
+    friend.setAddressee(secondTestUser);
+    mainTestUser.getFriendshipRequests().add(friend);
+
+    when(userRepository.findByUsername(eq(mainTestUserName))).thenReturn(Optional.of(mainTestUser));
+    when(userRepository.findByUsername(eq(secondTestUserName))).thenReturn(Optional.of(secondTestUser));
+
+    userService = new UserService(userRepository);
+
+    userService.removeFriend(mainTestUserName, secondTestUserName);
+
+    verify(userRepository, times(1)).save(mainTestUser);
+    verify(userRepository, times(1)).save(secondTestUser);
   }
 }
