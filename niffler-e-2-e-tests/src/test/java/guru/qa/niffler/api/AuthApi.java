@@ -25,10 +25,10 @@ public interface AuthApi {
 
     @POST("login")
     @FormUrlEncoded
-    Call<String> login(
-            @Field("username") String username,
-            @Field("password") String password,
-            @Field("_csrf") String csrf);
+    Call<Void> login(@Field("username") String username,
+                     @Field("password") String password,
+                     @Field("_csrf") String csrf
+    );
 
     @GET("register")
     Call<Void> requestRegisterForm();

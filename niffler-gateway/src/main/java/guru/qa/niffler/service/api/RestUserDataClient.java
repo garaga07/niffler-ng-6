@@ -4,6 +4,7 @@ import guru.qa.niffler.ex.NoRestResponseException;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.model.page.RestPage;
 import guru.qa.niffler.service.UserDataClient;
+import guru.qa.niffler.service.utils.HttpQueryPaginationAndSort;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;

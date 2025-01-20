@@ -8,6 +8,7 @@ import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.model.StatisticJson;
 import guru.qa.niffler.model.StatisticV2Json;
 import guru.qa.niffler.model.page.RestPage;
+import guru.qa.niffler.service.utils.HttpQueryPaginationAndSort;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,34 +42,34 @@ public class RestSpendClient {
   public @Nonnull
   List<CategoryJson> getCategories(@Nonnull String username, boolean excludeArchived) {
     return List.of(Optional.ofNullable(
-        restTemplate.getForObject(
-            nifflerSpendApiUri + "/categories/all?username={username}&excludeArchived={excludeArchived}",
-            CategoryJson[].class,
-            username,
-            excludeArchived
-        )
+            restTemplate.getForObject(
+                    nifflerSpendApiUri + "/categories/all?username={username}&excludeArchived={excludeArchived}",
+                    CategoryJson[].class,
+                    username,
+                    excludeArchived
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST List<CategoryJson> response is given [/categories/all/ Route]")));
   }
 
   public @Nonnull
   CategoryJson addCategory(@Nonnull CategoryJson category) {
     return Optional.ofNullable(
-        restTemplate.postForObject(
-            nifflerSpendApiUri + "/categories/add",
-            category,
-            CategoryJson.class
-        )
+            restTemplate.postForObject(
+                    nifflerSpendApiUri + "/categories/add",
+                    category,
+                    CategoryJson.class
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST CategoryJson response is given [/categories/add/ Route]"));
   }
 
   public @Nonnull
   CategoryJson updateCategory(@Nonnull CategoryJson category) {
     return Optional.ofNullable(
-        restTemplate.patchForObject(
-            nifflerSpendApiUri + "/categories/update",
-            category,
-            CategoryJson.class
-        )
+            restTemplate.patchForObject(
+                    nifflerSpendApiUri + "/categories/update",
+                    category,
+                    CategoryJson.class
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST CategoryJson response is given [/categories/update/ Route]"));
   }
 
@@ -76,12 +77,12 @@ public class RestSpendClient {
   SpendJson getSpend(@Nonnull String id,
                      @Nonnull String username) {
     return Optional.ofNullable(
-        restTemplate.getForObject(
-            nifflerSpendApiUri + "/spends/{id}?username={username}",
-            SpendJson.class,
-            id,
-            username
-        )
+            restTemplate.getForObject(
+                    nifflerSpendApiUri + "/spends/{id}?username={username}",
+                    SpendJson.class,
+                    id,
+                    username
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST SpendJson response is given [/spend/{id}/ Route]"));
   }
 
@@ -90,14 +91,14 @@ public class RestSpendClient {
                             @Nullable DataFilterValues filterPeriod,
                             @Nullable CurrencyValues filterCurrency) {
     return List.of(Optional.ofNullable(
-        restTemplate.getForObject(
-            nifflerSpendApiUri + "/spends/all?username={username}&from={from}&to={to}&filterCurrency={filterCurrency}",
-            SpendJson[].class,
-            username,
-            filterPeriod != null ? dateFormat(filterDate(filterPeriod)) : null,
-            filterPeriod != null ? dateFormat(new Date()) : null,
-            filterCurrency != null ? filterCurrency.name() : null
-        )
+            restTemplate.getForObject(
+                    nifflerSpendApiUri + "/spends/all?username={username}&from={from}&to={to}&filterCurrency={filterCurrency}",
+                    SpendJson[].class,
+                    username,
+                    filterPeriod != null ? dateFormat(filterDate(filterPeriod)) : null,
+                    filterPeriod != null ? dateFormat(new Date()) : null,
+                    filterCurrency != null ? filterCurrency.name() : null
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST List<SpendJson> response is given [/spends/all/ Route]")));
   }
 
@@ -109,38 +110,38 @@ public class RestSpendClient {
                             @Nullable CurrencyValues filterCurrency,
                             @Nullable String searchQuery) {
     return Optional.ofNullable(
-        restTemplate.getForObject(
-            nifflerSpendApiUri + "/v2/spends/all?username={username}&from={from}&to={to}&filterCurrency={filterCurrency}&searchQuery={searchQuery}"
-                + new HttpQueryPaginationAndSort(pageable),
-            RestPage.class,
-            username,
-            filterPeriod != null ? dateFormat(filterDate(filterPeriod)) : null,
-            filterPeriod != null ? dateFormat(new Date()) : null,
-            filterCurrency != null ? filterCurrency.name() : null,
-            searchQuery
-        )
+            restTemplate.getForObject(
+                    nifflerSpendApiUri + "/v2/spends/all?username={username}&from={from}&to={to}&filterCurrency={filterCurrency}&searchQuery={searchQuery}"
+                            + new HttpQueryPaginationAndSort(pageable),
+                    RestPage.class,
+                    username,
+                    filterPeriod != null ? dateFormat(filterDate(filterPeriod)) : null,
+                    filterPeriod != null ? dateFormat(new Date()) : null,
+                    filterCurrency != null ? filterCurrency.name() : null,
+                    searchQuery
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST Page<SpendJson> response is given [/v2/spends/all/ Route]"));
   }
 
   public @Nonnull
   SpendJson addSpend(@Nonnull SpendJson spend) {
     return Optional.ofNullable(
-        restTemplate.postForObject(
-            nifflerSpendApiUri + "/spends/add",
-            spend,
-            SpendJson.class
-        )
+            restTemplate.postForObject(
+                    nifflerSpendApiUri + "/spends/add",
+                    spend,
+                    SpendJson.class
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST SpendJson response is given [/spends/add/ Route]"));
   }
 
   public @Nonnull
   SpendJson editSpend(@Nonnull SpendJson spend) {
     return Optional.ofNullable(
-        restTemplate.patchForObject(
-            nifflerSpendApiUri + "/spends/edit",
-            spend,
-            SpendJson.class
-        )
+            restTemplate.patchForObject(
+                    nifflerSpendApiUri + "/spends/edit",
+                    spend,
+                    SpendJson.class
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST SpendJson response is given [/spends/edit/ Route]"));
   }
 
@@ -150,15 +151,15 @@ public class RestSpendClient {
                                 @Nullable CurrencyValues filterCurrency,
                                 @Nullable DataFilterValues filterPeriod) {
     return List.of(Optional.ofNullable(
-        restTemplate.getForObject(
-            nifflerSpendApiUri + "/stat/total?username={username}&userCurrency={userCurrency}&from={from}&to={to}&filterCurrency={filterCurrency}",
-            StatisticJson[].class,
-            username,
-            userCurrency.name(),
-            filterPeriod != null ? dateFormat(filterDate(filterPeriod)) : null,
-            filterPeriod != null ? dateFormat(new Date()) : null,
-            filterCurrency != null ? filterCurrency.name() : null
-        )
+            restTemplate.getForObject(
+                    nifflerSpendApiUri + "/stat/total?username={username}&userCurrency={userCurrency}&from={from}&to={to}&filterCurrency={filterCurrency}",
+                    StatisticJson[].class,
+                    username,
+                    userCurrency.name(),
+                    filterPeriod != null ? dateFormat(filterDate(filterPeriod)) : null,
+                    filterPeriod != null ? dateFormat(new Date()) : null,
+                    filterCurrency != null ? filterCurrency.name() : null
+            )
     ).orElseThrow(() -> new NoRestResponseException("No REST List<StatisticJson> response is given [/v2/stat/total Route]")));
   }
 
@@ -168,22 +169,22 @@ public class RestSpendClient {
                               @Nullable CurrencyValues filterCurrency,
                               @Nullable DataFilterValues filterPeriod) {
     return Optional.ofNullable(
-        restTemplate.getForObject(
-            nifflerSpendApiUri + "/v2/stat/total?username={username}&statCurrency={statCurrency}&from={from}&to={to}&filterCurrency={filterCurrency}",
-            StatisticV2Json.class,
-            username,
-            statCurrency.name(),
-            filterPeriod != null ? dateFormat(filterDate(filterPeriod)) : null,
-            filterPeriod != null ? dateFormat(new Date()) : null,
-            filterCurrency != null ? filterCurrency.name() : null
-        )).orElseThrow(() -> new NoRestResponseException("No REST StatisticV2Json response is given [/v2/stat/total Route]"));
+            restTemplate.getForObject(
+                    nifflerSpendApiUri + "/v2/stat/total?username={username}&statCurrency={statCurrency}&from={from}&to={to}&filterCurrency={filterCurrency}",
+                    StatisticV2Json.class,
+                    username,
+                    statCurrency.name(),
+                    filterPeriod != null ? dateFormat(filterDate(filterPeriod)) : null,
+                    filterPeriod != null ? dateFormat(new Date()) : null,
+                    filterCurrency != null ? filterCurrency.name() : null
+            )).orElseThrow(() -> new NoRestResponseException("No REST StatisticV2Json response is given [/v2/stat/total Route]"));
   }
 
   public void deleteSpends(@Nonnull String username, @Nonnull List<String> ids) {
     restTemplate.delete(
-        nifflerSpendApiUri + "/spends/remove?username={username}&ids={ids}",
-        username,
-        String.join(",", ids)
+            nifflerSpendApiUri + "/spends/remove?username={username}&ids={ids}",
+            username,
+            String.join(",", ids)
     );
   }
 
