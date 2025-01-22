@@ -7,6 +7,7 @@ import guru.qa.niffler.model.rest.CategoryJson;
 import guru.qa.niffler.model.rest.CurrencyValues;
 import guru.qa.niffler.model.rest.SpendJson;
 import guru.qa.niffler.service.SpendClient;
+import org.jetbrains.annotations.NotNull;
 import retrofit2.Response;
 
 import javax.annotation.Nonnull;
@@ -78,6 +79,23 @@ public class SpendApiClient implements SpendClient {
     @Override
     public void removeCategory(CategoryJson category) {
         throw new UnsupportedOperationException("Can`t remove category using API");
+    }
+
+    @NotNull
+    @Override
+    public CategoryJson getOrCreateCategory(String username, String categoryName, boolean archived) {
+        // Получаем все категории пользователя
+        List<CategoryJson> categories = getAllCategories(username);
+
+        // Проверяем, существует ли категория с указанным именем
+        return categories.stream()
+                .filter(category -> category.name().equals(categoryName))
+                .findFirst()
+                .orElseGet(() -> {
+                    // Если категории нет, создаем новую
+                    CategoryJson newCategory = new CategoryJson(null, categoryName, username, archived);
+                    return createCategory(newCategory);
+                });
     }
 
     @Nonnull
