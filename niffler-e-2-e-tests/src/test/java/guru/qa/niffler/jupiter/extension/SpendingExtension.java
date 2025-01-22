@@ -3,7 +3,6 @@ package guru.qa.niffler.jupiter.extension;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.rest.CategoryJson;
-import guru.qa.niffler.model.rest.CurrencyValues;
 import guru.qa.niffler.model.rest.SpendJson;
 import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.service.SpendClient;
@@ -31,20 +30,25 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
                         UserJson user = context.getStore(UserExtension.NAMESPACE)
                                 .get(context.getUniqueId(), UserJson.class);
 
+                        String username = user != null ? user.username() : userAnno.username();
+
                         for (Spending spendAnno : userAnno.spendings()) {
+                            // Получение или создание категории
+                            CategoryJson category = spendClient.getOrCreateCategory(
+                                    username,
+                                    spendAnno.category(),
+                                    false // Категория не архивная по умолчанию
+                            );
+
+                            // Создание объекта SpendJson с использованием найденной/созданной категории
                             SpendJson spend = new SpendJson(
                                     null,
                                     new Date(),
                                     spendAnno.amount(),
-                                    CurrencyValues.RUB,
-                                    new CategoryJson(
-                                            null,
-                                            spendAnno.category(),
-                                            user != null ? user.username() : userAnno.username(),
-                                            false
-                                    ),
+                                    spendAnno.currency(),
+                                    category,
                                     spendAnno.description(),
-                                    user != null ? user.username() : userAnno.username()
+                                    username
                             );
 
                             SpendJson createdSpend = spendClient.createSpend(spend);

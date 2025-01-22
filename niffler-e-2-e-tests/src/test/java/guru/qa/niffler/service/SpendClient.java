@@ -18,4 +18,7 @@ public interface SpendClient {
     CategoryJson updateCategory(CategoryJson category);
 
     void removeCategory(CategoryJson category);
+
+    @Nonnull
+    CategoryJson getOrCreateCategory(String username, String categoryName, boolean archived);
 }

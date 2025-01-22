@@ -14,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import java.util.Optional;
+
 import static java.util.Objects.requireNonNull;
 
 @ParametersAreNonnullByDefault
@@ -78,6 +80,29 @@ public class SpendDbClient implements SpendClient {
                     );
                     return null;
                 }
+        );
+    }
+
+    @Nonnull
+    public CategoryJson getOrCreateCategory(String username, String categoryName, boolean archived) {
+        return requireNonNull(
+                xaTransactionTemplate.execute(() -> {
+                    Optional<CategoryEntity> existingCategory = spendRepository.findCategoryByUsernameAndCategoryName(username, categoryName);
+
+                    if (existingCategory.isPresent()) {
+                        // Если категория уже существует, возвращаем её
+                        return CategoryJson.fromEntity(existingCategory.get());
+                    }
+
+                    // Если категории нет, создаем новую с использованием конструктора
+                    CategoryEntity newCategory = new CategoryEntity();
+                    newCategory.setUsername(username);
+                    newCategory.setName(categoryName);
+                    newCategory.setArchived(archived);
+
+                    CategoryEntity createdCategory = spendRepository.createCategory(newCategory);
+                    return CategoryJson.fromEntity(createdCategory);
+                })
         );
     }
 }
