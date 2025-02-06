@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  niffler-all-db:
+    container_name: niffler-all-db
+    image: postgres:15.1
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - CREATE_DATABASES=niffler-auth,niffler-currency,niffler-spend,niffler-userdata
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/script/init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
+    ports:
+      - 5432:5432
+    command: ["postgres", "-c", "max_prepared_transactions=100"]
+    networks:
+      - niffler-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:7.3.2
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+    ports:
+      - 2181:2181
+    networks:
+      - niffler-network
+
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:7.3.2
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+    ports:
+      - 9092:9092
+    networks:
+      - niffler-network
+
+  niffler-client:
+    container_name: niffler-client
+    build:
+      context: ./niffler-ng-client
+      dockerfile: Dockerfile
+      args:
+        NPM_COMMAND: build:dev
+    networks:
+      - niffler-network
+    depends_on:
+      - kafka
+      - niffler-all-db
+
+volumes:
+  pgdata:
+
+networks:
+  niffler-network:
+    driver: bridge
