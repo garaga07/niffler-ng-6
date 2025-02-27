@@ -33,6 +33,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test:6.4.2'
     testImplementation "org.wiremock:wiremock:${project.ext.wiremockVersion}"
     testImplementation "org.wiremock:wiremock-jetty12:${project.ext.wiremockVersion}"
+    testImplementation 'org.wiremock:wiremock-grpc-extension:0.9.0'
 }
 
 xjcGeneration {
